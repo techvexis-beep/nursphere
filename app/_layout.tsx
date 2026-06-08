@@ -55,40 +55,32 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return (
-      <LinearGradient
-        colors={[NigeriaColors.green, '#0D9488']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.loading}
-      >
-        <StatusBar style="light" />
-      </LinearGradient>
-    );
-  }
-
-  if (showOnboarding) {
-    return (
-      <ThemeProvider>
-        <OnboardingScreen onComplete={() => setShowOnboarding(false)} />
-      </ThemeProvider>
-    );
-  }
-
   return (
     <GestureHandlerRootView style={styles.root}>
       <ThemeProvider>
-        <AuthProvider>
-          <StatsProvider>
+        {!fontsLoaded ? (
+          <LinearGradient
+            colors={[NigeriaColors.green, '#0D9488']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.loading}
+          >
             <StatusBar style="light" />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="(tools)" />
-            </Stack>
-          </StatsProvider>
-        </AuthProvider>
+          </LinearGradient>
+        ) : showOnboarding ? (
+          <OnboardingScreen onComplete={() => setShowOnboarding(false)} />
+        ) : (
+          <AuthProvider>
+            <StatsProvider>
+              <StatusBar style="light" />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(tools)" />
+              </Stack>
+            </StatsProvider>
+          </AuthProvider>
+        )}
       </ThemeProvider>
     </GestureHandlerRootView>
   );

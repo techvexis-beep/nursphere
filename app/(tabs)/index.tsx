@@ -147,6 +147,7 @@ export default function HomeScreen() {
         style={s.scroll}
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <SafeAreaView edges={['top']} style={s.topArea}>
           <View style={s.flagBar}>
@@ -206,6 +207,7 @@ export default function HomeScreen() {
                 key={tool.id}
                 entering={FadeInDown.delay(400 + i * 80).springify()}
                 style={s.resourceCardWrap}
+                pointerEvents="box-none"
               >
                 <Pressable
                   onPress={() => router.navigate(`/(tools)/${tool.id}`)}

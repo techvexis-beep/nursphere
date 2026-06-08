@@ -31,7 +31,7 @@ export default function TabLayout() {
           elevation: 12,
           shadowColor: isDark ? '#000' : NigeriaColors.green,
         },
-        tabBarBackground: undefined,
+
         tabBarLabelStyle: {
           fontFamily: FontFamily.bodyMedium,
           fontSize: 10,
