@@ -257,9 +257,8 @@ const s = StyleSheet.create({
   avatarGlow: {
     width: 48, height: 48, borderRadius: 24,
     justifyContent: 'center', alignItems: 'center',
-    shadowColor: NigeriaColors.green,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4, shadowRadius: 12, elevation: 8,
+    boxShadow: '0 4px 12px rgba(0,135,81,0.4)',
+    elevation: 8,
   },
   avatarText: { fontFamily: FontFamily.bodyBold, color: '#FFFFFF', fontSize: FontSize.md },
   statsRow: {

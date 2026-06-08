@@ -14,6 +14,12 @@ type Props = {
   glowIntensity?: 'low' | 'medium' | 'high';
 };
 
+const GREEN_RGB = '0,135,81';
+
+function glowBoxShadow(color: string, opacity: number, radius: number): string {
+  return `0 4px ${radius}px rgba(${color},${opacity})`;
+}
+
 export default function GlowGlass({
   children, style, variant = 'default',
   blurIntensity: _blurIntensity, noPadding, glowIntensity = 'medium',
@@ -22,24 +28,15 @@ export default function GlowGlass({
 
   const glowShadows: Record<GlowVariant, ViewStyle> = {
     green: {
-      shadowColor: NigeriaColors.green,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: glowIntensity === 'high' ? 0.4 : glowIntensity === 'medium' ? 0.25 : 0.15,
-      shadowRadius: glowIntensity === 'high' ? 32 : glowIntensity === 'medium' ? 20 : 12,
+      boxShadow: glowBoxShadow(GREEN_RGB, glowIntensity === 'high' ? 0.4 : glowIntensity === 'medium' ? 0.25 : 0.15, glowIntensity === 'high' ? 32 : glowIntensity === 'medium' ? 20 : 12),
       elevation: glowIntensity === 'high' ? 16 : glowIntensity === 'medium' ? 10 : 6,
     },
     default: {
-      shadowColor: NigeriaColors.green,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: glowIntensity === 'high' ? 0.3 : 0.15,
-      shadowRadius: glowIntensity === 'high' ? 28 : 16,
+      boxShadow: glowBoxShadow(GREEN_RGB, glowIntensity === 'high' ? 0.3 : 0.15, glowIntensity === 'high' ? 28 : 16),
       elevation: glowIntensity === 'high' ? 14 : 8,
     },
     subtle: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: isDark ? 0.3 : 0.08,
-      shadowRadius: 12,
+      boxShadow: glowBoxShadow('0,0,0', isDark ? 0.3 : 0.08, 12),
       elevation: 4,
     },
   };

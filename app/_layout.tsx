@@ -19,7 +19,7 @@ import { ThemeProvider } from '../src/context/ThemeContext';
 import { StatsProvider } from '../src/context/StatsContext';
 import OnboardingScreen from '../src/components/OnboardingScreen';
 
-LogBox.ignoreLogs(['[Reanimated]', '[Worklets]']);
+LogBox.ignoreLogs(['[Reanimated]', '[Worklets]', '"shadow*" style props']);
 
 SplashScreen.preventAutoHideAsync();
 

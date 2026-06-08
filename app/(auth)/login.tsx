@@ -126,10 +126,7 @@ const styles = StyleSheet.create({
   logoWrap: {
     width: 72, height: 72, borderRadius: 22,
     justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.md,
-    shadowColor: NigeriaColors.green,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
+    boxShadow: '0 6px 16px rgba(0,135,81,0.35)',
     elevation: 10,
   },
   appName: { fontFamily: FontFamily.display, fontSize: FontSize.title },
@@ -146,10 +143,7 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: BorderRadius.md, paddingVertical: Spacing.md,
     alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm,
-    shadowColor: NigeriaColors.green,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    boxShadow: '0 4px 10px rgba(0,135,81,0.3)',
     elevation: 6,
   },
   buttonDisabled: { opacity: 0.6 },

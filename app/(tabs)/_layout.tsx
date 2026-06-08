@@ -26,10 +26,8 @@ export default function TabLayout() {
           paddingTop: 6,
           backgroundColor: isDark ? '#151b2e' : '#ffffff',
           borderRadius: BorderRadius.xl,
-          shadowOpacity: isDark ? 0.5 : 0.15,
-          shadowRadius: 20,
+          boxShadow: isDark ? '0 0 20px rgba(0,0,0,0.5)' : '0 0 20px rgba(0,135,81,0.15)',
           elevation: 12,
-          shadowColor: isDark ? '#000' : NigeriaColors.green,
         },
 
         tabBarLabelStyle: {

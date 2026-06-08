@@ -61,7 +61,7 @@ function StageIcon({ status, index }: { status: string; index: number }) {
   if (status === 'completed')
     return <View style={[styles.stageDot, { backgroundColor: colors.success }]}><Ionicons name="checkmark" size={14} color="#FFFFFF" /></View>;
   if (status === 'in-progress')
-    return <View style={[styles.stageDot, { backgroundColor: NigeriaColors.green, shadowColor: NigeriaColors.green, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: 8, elevation: 6 }]}><Text style={styles.stageDotNum}>{index + 1}</Text></View>;
+    return <View style={[styles.stageDot, { backgroundColor: NigeriaColors.green, boxShadow: '0 0 8px rgba(0,135,81,0.6)', elevation: 6 }]}><Text style={styles.stageDotNum}>{index + 1}</Text></View>;
   return <View style={[styles.stageDot, { backgroundColor: colors.border }]}><Text style={[styles.stageDotNum, { color: colors.textLight }]}>{index + 1}</Text></View>;
 }
 
