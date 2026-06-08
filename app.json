@@ -11,6 +11,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.nursphere.app",
       "adaptiveIcon": {
         "backgroundColor": "#0D9488",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -24,6 +25,13 @@
     "plugins": [
       "expo-router",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a0e73d5b-ff8f-468e-9fe1-962561aaa6eb"
+      }
+    },
+    "owner": "blaya123"
   }
 }
