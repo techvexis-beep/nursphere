@@ -11,6 +11,8 @@ import { Spacing, FontSize, FontFamily, BorderRadius, Shadow, NigeriaColors } fr
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useStats } from '../../src/context/StatsContext';
+import { useResponsiveCtx } from '../../src/context/ResponsiveContext';
+import { scale, verticalScale, moderateScale, responsiveFontSize } from '../../src/utils/responsive';
 
 type UserProfile = {
   id: string;
@@ -122,6 +124,7 @@ const reactionStyles = StyleSheet.create({
 export default function CommunityScreen() {
   const { user } = useAuth();
   const { colors, isDark } = useTheme();
+  const resp = useResponsiveCtx();
   const [activeChannel, setActiveChannel] = useState('general');
   const [messages, setMessages] = useState<Record<string, Message[]>>(seedMessages);
   const [input, setInput] = useState('');
@@ -131,6 +134,8 @@ export default function CommunityScreen() {
   const slideAnim = useRef(new RNAnimated.Value(-300)).current;
   const flatListRef = useRef<FlatList>(null);
   const { addConnection, removeConnection, startStudyTimer, stopStudyTimer } = useStats();
+
+  const sidebarWidth = resp.isTablet ? moderateScale(320) : moderateScale(280);
 
   useFocusEffect(
     useCallback(() => {
@@ -152,11 +157,11 @@ export default function CommunityScreen() {
 
   useEffect(() => {
     RNAnimated.timing(slideAnim, {
-      toValue: showChannelList ? 0 : -300,
+      toValue: showChannelList ? 0 : -sidebarWidth,
       duration: 250,
       useNativeDriver: true,
     }).start();
-  }, [showChannelList, slideAnim]);
+  }, [showChannelList, slideAnim, sidebarWidth]);
 
   const currentMessages = messages[activeChannel] || [];
 
@@ -203,48 +208,48 @@ export default function CommunityScreen() {
       {showChannelList && (
         <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setShowChannelList(false)}>
           <RNAnimated.View
-            style={[styles.sidebar, { backgroundColor: isDark ? '#0d1124' : '#1a1a2e', transform: [{ translateX: slideAnim }] }]}
+            style={[styles.sidebar, { backgroundColor: isDark ? '#0d1124' : '#1a1a2e', width: sidebarWidth, transform: [{ translateX: slideAnim }] }]}
           >
-            <View style={styles.sidebarHeader}>
-              <Text style={styles.sidebarTitle}>Nursphere</Text>
-              <Text style={styles.sidebarSubtitle}>{onlineCount} online</Text>
+            <View style={[styles.sidebarHeader, { marginBottom: resp.scale(Spacing.md), paddingBottom: resp.scale(Spacing.lg) }]}>
+              <Text style={[styles.sidebarTitle, { fontSize: resp.responsiveFontSize(FontSize.xl) }]}>Nursphere</Text>
+              <Text style={[styles.sidebarSubtitle, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{onlineCount} online</Text>
             </View>
 
             {['TEXT CHANNELS', 'RESOURCES'].map(cat => (
               <View key={cat}>
-                <Text style={styles.channelCategory}>{cat}</Text>
+                <Text style={[styles.channelCategory, { fontSize: resp.responsiveFontSize(FontSize.xs), marginTop: resp.scale(Spacing.md), marginBottom: resp.scale(Spacing.xs) }]}>{cat}</Text>
                 {channels.filter(c => c.category === cat).map(ch => (
                   <TouchableOpacity
                     key={ch.id}
-                    style={[styles.channelItem, activeChannel === ch.id && { backgroundColor: 'rgba(255,255,255,0.1)' }]}
+                    style={[styles.channelItem, activeChannel === ch.id && { backgroundColor: 'rgba(255,255,255,0.1)' }, { paddingVertical: resp.scale(Spacing.sm), paddingHorizontal: resp.scale(Spacing.sm), borderRadius: resp.scale(BorderRadius.md), marginBottom: 2 }]}
                     onPress={() => { setActiveChannel(ch.id); setShowChannelList(false); }}
                   >
-                    <Text style={[styles.channelHash, activeChannel === ch.id && styles.channelHashActive]}>#</Text>
-                    <Text style={[styles.channelName, activeChannel === ch.id && { color: '#FFFFFF' }]}>{ch.name}</Text>
+                    <Text style={[styles.channelHash, activeChannel === ch.id && styles.channelHashActive, { fontSize: resp.responsiveFontSize(FontSize.lg), marginRight: resp.scale(Spacing.sm) }]}>#</Text>
+                    <Text style={[styles.channelName, activeChannel === ch.id && { color: '#FFFFFF' }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>{ch.name}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             ))}
 
-            <View style={styles.sidebarUsers}>
-              <Text style={styles.channelCategory}>ONLINE — {onlineCount}</Text>
+            <View style={[styles.sidebarUsers, { marginTop: resp.scale(Spacing.lg) }]}>
+              <Text style={[styles.channelCategory, { fontSize: resp.responsiveFontSize(FontSize.xs), marginBottom: resp.scale(Spacing.xs) }]}>ONLINE — {onlineCount}</Text>
               {mockUsers.filter(u => u.online).map(u => (
-                <View key={u.id} style={styles.userRow}>
-                  <View style={styles.userAvatarSmall}>
-                    <Text style={styles.userAvatarSmallText}>{u.avatar}</Text>
-                    <View style={[styles.onlineDot, { backgroundColor: NigeriaColors.green }]} />
+                <View key={u.id} style={[styles.userRow, { paddingVertical: resp.scale(Spacing.xs), paddingHorizontal: resp.scale(Spacing.xs) }]}>
+                  <View style={[styles.userAvatarSmall, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14), marginRight: resp.scale(Spacing.sm) }]}>
+                    <Text style={[styles.userAvatarSmallText, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{u.avatar}</Text>
+                    <View style={[styles.onlineDot, { backgroundColor: NigeriaColors.green }, { width: resp.scale(8), height: resp.scale(8), borderRadius: resp.scale(4) }]} />
                   </View>
                   <View style={styles.userRowInfo}>
-                    <Text style={styles.userNameSmall}>{u.name}</Text>
-                    <Text style={styles.userRoleSmall}>{u.role}</Text>
+                    <Text style={[styles.userNameSmall, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>{u.name}</Text>
+                    <Text style={[styles.userRoleSmall, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{u.role}</Text>
                   </View>
                   <TouchableOpacity
-                    style={[styles.connectBtn, connectedUsers.includes(u.id) && styles.connectBtnActive]}
+                    style={[styles.connectBtn, connectedUsers.includes(u.id) && styles.connectBtnActive, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14) }]}
                     onPress={() => toggleConnect(u.id)}
                   >
                     <Ionicons
                       name={connectedUsers.includes(u.id) ? 'checkmark-circle' : 'person-add-outline'}
-                      size={16}
+                      size={resp.scale(16)}
                       color={connectedUsers.includes(u.id) ? '#FFFFFF' : NigeriaColors.green}
                     />
                   </TouchableOpacity>
@@ -256,16 +261,16 @@ export default function CommunityScreen() {
       )}
 
       {/* Main chat area */}
-      <View style={[styles.chatHeader, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.channelToggle} onPress={() => setShowChannelList(true)}>
-          <Ionicons name="menu" size={22} color={colors.text} />
+      <View style={[styles.chatHeader, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderBottomColor: colors.border }, { paddingHorizontal: resp.scale(Spacing.md), paddingVertical: resp.scale(Spacing.sm) }]}>
+        <TouchableOpacity style={[styles.channelToggle, { padding: resp.scale(Spacing.xs), marginRight: resp.scale(Spacing.sm) }]} onPress={() => setShowChannelList(true)}>
+          <Ionicons name="menu" size={moderateScale(22)} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.channelInfo}>
-          <Text style={[styles.channelTitle, { color: colors.text }]}>#{channel.name}</Text>
-          <Text style={[styles.channelDesc, { color: colors.textSecondary }]}>{channel.description}</Text>
+          <Text style={[styles.channelTitle, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>#{channel.name}</Text>
+          <Text style={[styles.channelDesc, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{channel.description}</Text>
         </View>
-        <TouchableOpacity style={styles.channelInfoBtn}>
-          <Ionicons name="information-circle-outline" size={22} color={colors.textLight} />
+        <TouchableOpacity style={[styles.channelInfoBtn, { padding: resp.scale(Spacing.xs) }]}>
+          <Ionicons name="information-circle-outline" size={moderateScale(22)} color={colors.textLight} />
         </TouchableOpacity>
       </View>
 
@@ -274,46 +279,46 @@ export default function CommunityScreen() {
           ref={flatListRef}
           data={currentMessages}
           keyExtractor={item => item.id}
-          contentContainerStyle={styles.messagesList}
+          contentContainerStyle={[styles.messagesList, { padding: resp.scale(Spacing.md), paddingBottom: resp.verticalScale(Spacing.xxxl + Spacing.xl) }]}
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
           renderItem={({ item }) => {
             const mu = getUser(item.userId);
             const isMine = item.userId === 'u1';
             return (
-              <Animated.View entering={FadeInDown.springify()} style={[styles.messageRow, isMine && styles.messageRowMine]}>
+              <Animated.View entering={FadeInDown.springify()} style={[styles.messageRow, isMine && styles.messageRowMine, { marginBottom: resp.scale(Spacing.md) }]}>
                 {!isMine && (
-                  <View style={[styles.msgAvatar, { backgroundColor: 'rgba(0,135,81,0.15)' }]}>
-                    <Text style={styles.msgAvatarText}>{mu.avatar}</Text>
+                  <View style={[styles.msgAvatar, { backgroundColor: 'rgba(0,135,81,0.15)' }, { width: resp.scale(36), height: resp.scale(36), borderRadius: resp.scale(18), marginRight: resp.scale(Spacing.sm), marginTop: 2 }]}>
+                    <Text style={[styles.msgAvatarText, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>{mu.avatar}</Text>
                   </View>
                 )}
-                <View style={styles.msgContent}>
+                <View style={[styles.msgContent, { maxWidth: resp.isTablet ? '75%' : '82%' }]}>
                   {!isMine && (
                     <View style={styles.msgMeta}>
-                      <Text style={[styles.msgAuthor, { color: colors.primary }]}>{mu.name}</Text>
-                      <Text style={[styles.msgTime, { color: colors.textLight }]}>{formatTime(item.timestamp)}</Text>
+                      <Text style={[styles.msgAuthor, { color: colors.primary }, { fontSize: resp.responsiveFontSize(FontSize.sm), marginRight: resp.scale(Spacing.sm) }]}>{mu.name}</Text>
+                      <Text style={[styles.msgTime, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{formatTime(item.timestamp)}</Text>
                     </View>
                   )}
                   {isMine && (
                     <View style={styles.msgMetaRight}>
-                      <Text style={[styles.msgTime, { color: colors.textLight }]}>{formatTime(item.timestamp)}</Text>
+                      <Text style={[styles.msgTime, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{formatTime(item.timestamp)}</Text>
                     </View>
                   )}
-                  <Text style={[styles.msgText, { color: colors.text }]}>{item.text}</Text>
+                  <Text style={[styles.msgText, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.md), lineHeight: resp.verticalScale(20) }]}>{item.text}</Text>
                   {item.reactions.length > 0 && (
-                    <View style={styles.reactionsRow}>
+                    <View style={[styles.reactionsRow, { gap: resp.scale(4), marginTop: resp.scale(4) }]}>
                       {item.reactions.map((r: string, i: number) => (
-                        <TouchableOpacity key={i} style={[styles.reactionBadge, { backgroundColor: 'rgba(0,135,81,0.1)' }]} onPress={() => toggleReaction(item.id, r)}>
-                          <Text style={styles.reactionEmoji}>{r}</Text>
+                        <TouchableOpacity key={i} style={[styles.reactionBadge, { backgroundColor: 'rgba(0,135,81,0.1)' }, { paddingHorizontal: resp.scale(6), paddingVertical: resp.scale(2), borderRadius: resp.scale(BorderRadius.full) }]} onPress={() => toggleReaction(item.id, r)}>
+                          <Text style={[styles.reactionEmoji, { fontSize: resp.moderateScale(14) }]}>{r}</Text>
                         </TouchableOpacity>
                       ))}
-                      <TouchableOpacity style={styles.reactionAdd} onPress={() => setReactingTo(reactingTo === item.id ? null : item.id)}>
-                        <Ionicons name="add-circle-outline" size={16} color={colors.textLight} />
+                      <TouchableOpacity style={[styles.reactionAdd, { padding: resp.scale(2) }]} onPress={() => setReactingTo(reactingTo === item.id ? null : item.id)}>
+                        <Ionicons name="add-circle-outline" size={resp.scale(16)} color={colors.textLight} />
                       </TouchableOpacity>
                     </View>
                   )}
                   {!item.reactions.length && (
-                    <TouchableOpacity style={styles.reactionAddStandalone} onPress={() => setReactingTo(reactingTo === item.id ? null : item.id)}>
-                      <Ionicons name="add-circle-outline" size={14} color={colors.textLight} />
+                    <TouchableOpacity style={[styles.reactionAddStandalone, { padding: resp.scale(2), marginTop: resp.scale(2) }]} onPress={() => setReactingTo(reactingTo === item.id ? null : item.id)}>
+                      <Ionicons name="add-circle-outline" size={resp.moderateScale(14)} color={colors.textLight} />
                     </TouchableOpacity>
                   )}
                   {reactingTo === item.id && (
@@ -325,10 +330,10 @@ export default function CommunityScreen() {
           }}
         />
 
-        <View style={[styles.inputContainer, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderTopColor: colors.border }]}>
-          <View style={[styles.inputWrap, { backgroundColor: isDark ? '#0d1124' : '#f0f0f5' }]}>
+        <View style={[styles.inputContainer, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderTopColor: colors.border }, { paddingHorizontal: resp.scale(Spacing.md), paddingVertical: resp.scale(Spacing.sm), paddingBottom: resp.verticalScale(Spacing.xxxl + Spacing.md) }]}>
+          <View style={[styles.inputWrap, { backgroundColor: isDark ? '#0d1124' : '#f0f0f5' }, { borderRadius: resp.scale(BorderRadius.full), paddingLeft: resp.scale(Spacing.md), paddingRight: resp.scale(4), paddingVertical: resp.scale(4) }]}>
             <TextInput
-              style={[styles.input, { color: colors.text }]}
+              style={[styles.input, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.md), maxHeight: resp.verticalScale(80), paddingVertical: resp.scale(Spacing.xs) }]}
               value={input}
               onChangeText={setInput}
               placeholder={`Message #${channel.name}`}
@@ -339,11 +344,11 @@ export default function CommunityScreen() {
               returnKeyType="send"
             />
             <TouchableOpacity
-              style={[styles.sendBtn, { backgroundColor: NigeriaColors.green }, !input.trim() && { opacity: 0.4 }]}
+              style={[styles.sendBtn, { backgroundColor: NigeriaColors.green }, !input.trim() && { opacity: 0.4 }, { width: resp.scale(34), height: resp.scale(34), borderRadius: resp.scale(17) }]}
               onPress={sendMessage}
               disabled={!input.trim()}
             >
-              <Ionicons name="send" size={16} color="#FFFFFF" />
+              <Ionicons name="send" size={resp.scale(16)} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         </View>
@@ -362,89 +367,78 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100,
   },
   sidebar: {
-    position: 'absolute', top: 0, left: 0, bottom: 0, width: 280,
+    position: 'absolute', top: 0, left: 0, bottom: 0,
     paddingTop: Spacing.xl, paddingHorizontal: Spacing.md,
   },
-  sidebarHeader: { paddingBottom: Spacing.lg, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)', marginBottom: Spacing.md },
-  sidebarTitle: { fontFamily: FontFamily.display, fontSize: FontSize.xl, color: '#FFFFFF' },
-  sidebarSubtitle: { fontFamily: FontFamily.body, fontSize: FontSize.xs, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
+  sidebarHeader: { borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
+  sidebarTitle: { fontFamily: FontFamily.display, color: '#FFFFFF' },
+  sidebarSubtitle: { fontFamily: FontFamily.body, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
   channelCategory: {
-    fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs,
+    fontFamily: FontFamily.bodySemiBold,
     color: 'rgba(255,255,255,0.5)', letterSpacing: 1,
-    marginTop: Spacing.md, marginBottom: Spacing.xs, paddingLeft: Spacing.xs,
+    paddingLeft: Spacing.xs,
   },
   channelItem: {
     flexDirection: 'row', alignItems: 'center',
-    paddingVertical: Spacing.sm, paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.md, marginBottom: 2,
   },
-  channelHash: { fontFamily: FontFamily.body, fontSize: FontSize.lg, color: 'rgba(255,255,255,0.4)', marginRight: Spacing.sm },
+  channelHash: { fontFamily: FontFamily.body, color: 'rgba(255,255,255,0.4)' },
   channelHashActive: { color: '#FFFFFF' },
-  channelName: { fontFamily: FontFamily.body, fontSize: FontSize.md, color: 'rgba(255,255,255,0.7)' },
-  sidebarUsers: { marginTop: Spacing.lg },
-  userRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.xs, paddingHorizontal: Spacing.xs },
-  userAvatarSmall: { width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(0,135,81,0.2)', justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
-  userAvatarSmallText: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.xs, color: NigeriaColors.green },
-  onlineDot: { width: 8, height: 8, borderRadius: 4, position: 'absolute', bottom: 0, right: -1, borderWidth: 2, borderColor: '#0d1124' },
+  channelName: { fontFamily: FontFamily.body, color: 'rgba(255,255,255,0.7)' },
+  sidebarUsers: {},
+  userRow: { flexDirection: 'row', alignItems: 'center' },
+  userAvatarSmall: { justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,135,81,0.2)' },
+  userAvatarSmallText: { fontFamily: FontFamily.bodyBold, color: NigeriaColors.green },
+  onlineDot: { position: 'absolute', bottom: 0, right: -1, borderWidth: 2, borderColor: '#0d1124' },
   userRowInfo: { flex: 1 },
-  userNameSmall: { fontFamily: FontFamily.body, fontSize: FontSize.sm, color: 'rgba(255,255,255,0.8)' },
-  userRoleSmall: { fontFamily: FontFamily.body, fontSize: FontSize.xs, color: 'rgba(255,255,255,0.4)', marginTop: 1 },
-  connectBtn: { width: 28, height: 28, borderRadius: 14, borderWidth: 1.5, borderColor: NigeriaColors.green, justifyContent: 'center', alignItems: 'center' },
+  userNameSmall: { fontFamily: FontFamily.body, color: 'rgba(255,255,255,0.8)' },
+  userRoleSmall: { fontFamily: FontFamily.body, color: 'rgba(255,255,255,0.4)', marginTop: 1 },
+  connectBtn: { borderWidth: 1.5, borderColor: NigeriaColors.green, justifyContent: 'center', alignItems: 'center' },
   connectBtnActive: { backgroundColor: NigeriaColors.green, borderColor: NigeriaColors.green },
 
   /* Chat header */
   chatHeader: {
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
   },
-  channelToggle: { padding: Spacing.xs, marginRight: Spacing.sm },
+  channelToggle: {},
   channelInfo: { flex: 1 },
-  channelTitle: { fontFamily: FontFamily.heading, fontSize: FontSize.md },
-  channelDesc: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginTop: 1 },
-  channelInfoBtn: { padding: Spacing.xs },
+  channelTitle: { fontFamily: FontFamily.heading },
+  channelDesc: { fontFamily: FontFamily.body, marginTop: 1 },
+  channelInfoBtn: {},
 
   /* Messages */
-  messagesList: { padding: Spacing.md, paddingBottom: Spacing.xxxl + Spacing.xl },
-  messageRow: { flexDirection: 'row', marginBottom: Spacing.md, alignItems: 'flex-start' },
+  messagesList: {},
+  messageRow: { flexDirection: 'row', alignItems: 'flex-start' },
   messageRowMine: { justifyContent: 'flex-end' },
   msgAvatar: {
-    width: 36, height: 36, borderRadius: 18,
     justifyContent: 'center', alignItems: 'center',
-    marginRight: Spacing.sm, marginTop: 2,
   },
-  msgAvatarText: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: NigeriaColors.green },
-  msgContent: { maxWidth: '82%' },
+  msgAvatarText: { fontFamily: FontFamily.bodyBold, color: NigeriaColors.green },
+  msgContent: {},
   msgMeta: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
   msgMetaRight: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 2 },
-  msgAuthor: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, marginRight: Spacing.sm },
-  msgTime: { fontFamily: FontFamily.body, fontSize: FontSize.xs },
-  msgText: { fontFamily: FontFamily.body, fontSize: FontSize.md, lineHeight: 20 },
+  msgAuthor: { fontFamily: FontFamily.bodySemiBold },
+  msgTime: { fontFamily: FontFamily.body },
+  msgText: { fontFamily: FontFamily.body },
 
   /* Reactions */
-  reactionsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
-  reactionBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: BorderRadius.full },
-  reactionEmoji: { fontSize: 14 },
-  reactionAdd: { padding: 2 },
-  reactionAddStandalone: { padding: 2, marginTop: 2, alignSelf: 'flex-start' },
+  reactionsRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  reactionBadge: {},
+  reactionEmoji: {},
+  reactionAdd: {},
+  reactionAddStandalone: { alignSelf: 'flex-start' },
 
   /* Input */
   inputContainer: {
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    paddingBottom: Spacing.xxxl + Spacing.md,
     borderTopWidth: 1,
   },
   inputWrap: {
     flexDirection: 'row', alignItems: 'flex-end',
-    borderRadius: BorderRadius.full, paddingLeft: Spacing.md,
-    paddingRight: 4, paddingVertical: 4,
   },
   input: {
-    flex: 1, fontFamily: FontFamily.body, fontSize: FontSize.md,
-    maxHeight: 80, paddingVertical: Spacing.xs,
+    flex: 1, fontFamily: FontFamily.body,
   },
   sendBtn: {
-    width: 34, height: 34, borderRadius: 17,
     justifyContent: 'center', alignItems: 'center',
   },
 });

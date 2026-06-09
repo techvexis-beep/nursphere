@@ -10,11 +10,14 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useStats } from '../../src/context/StatsContext';
 import { fetchCareerRoadmap, CareerMilestone } from '../../src/services/geminiInsights';
 import GlowGlass from '../../src/components/GlowGlass';
+import { useResponsiveCtx } from '../../src/context/ResponsiveContext';
+import { scale, verticalScale, moderateScale, responsiveFontSize } from '../../src/utils/responsive';
 
 const PROGRESS_BAR_HEIGHT = 8;
 
 function ProgressSection({ progress, completedCount, totalCount, role, institution }: { progress: number; completedCount: number; totalCount: number; role: string; institution: string }) {
   const { colors, isDark } = useTheme();
+  const resp = useResponsiveCtx();
   const barAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -28,28 +31,28 @@ function ProgressSection({ progress, completedCount, totalCount, role, instituti
 
   return (
     <View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-        <Text style={[styles.heroTitle, { color: isDark ? '#FFFFFF' : '#1a1a2e' }]}>Career Roadmap</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 2 }}>
-          <Text style={[styles.heroProgressPct, { color: NigeriaColors.green }]}>{Math.round(progress * 100)}%</Text>
-          <Text style={[styles.heroProgressLabel, { color: colors.textLight }]}>complete</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: resp.scale(6) }}>
+        <Text style={[styles.heroTitle, { color: isDark ? '#FFFFFF' : '#1a1a2e' }, { fontSize: resp.responsiveFontSize(FontSize.xxl) }]}>Career Roadmap</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: resp.scale(2) }}>
+          <Text style={[styles.heroProgressPct, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.lg) }]}>{Math.round(progress * 100)}%</Text>
+          <Text style={[styles.heroProgressLabel, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>complete</Text>
         </View>
       </View>
-      <Text style={[styles.heroSub, { color: colors.textSecondary }]}>
+      <Text style={[styles.heroSub, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>
         {role} · {institution}
       </Text>
-      <View style={[styles.progressBg, { backgroundColor: isDark ? '#2a2f45' : '#e8ecf4' }]}>
+      <View style={[styles.progressBg, { backgroundColor: isDark ? '#2a2f45' : '#e8ecf4' }, { height: PROGRESS_BAR_HEIGHT, borderRadius: PROGRESS_BAR_HEIGHT / 2, marginTop: resp.scale(Spacing.md) }]}>
         <Animated.View style={[styles.progressFill, { width: widthInterp }]} />
       </View>
-      <View style={styles.heroStatsRow}>
+      <View style={[styles.heroStatsRow, { marginTop: resp.scale(Spacing.sm) }]}>
         <View style={styles.heroStat}>
-          <Text style={[styles.heroStatVal, { color: colors.text }]}>{completedCount}</Text>
-          <Text style={[styles.heroStatLabel, { color: colors.textLight }]}>completed</Text>
+          <Text style={[styles.heroStatVal, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>{completedCount}</Text>
+          <Text style={[styles.heroStatLabel, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>completed</Text>
         </View>
-        <View style={[styles.heroStatDivider, { backgroundColor: colors.border }]} />
+        <View style={[styles.heroStatDivider, { backgroundColor: colors.border }, { width: 1, height: resp.verticalScale(16), marginHorizontal: resp.scale(Spacing.md) }]} />
         <View style={styles.heroStat}>
-          <Text style={[styles.heroStatVal, { color: colors.text }]}>{totalCount - completedCount}</Text>
-          <Text style={[styles.heroStatLabel, { color: colors.textLight }]}>remaining</Text>
+          <Text style={[styles.heroStatVal, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>{totalCount - completedCount}</Text>
+          <Text style={[styles.heroStatLabel, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>remaining</Text>
         </View>
       </View>
     </View>
@@ -58,17 +61,19 @@ function ProgressSection({ progress, completedCount, totalCount, role, instituti
 
 function StageIcon({ status, index }: { status: string; index: number }) {
   const { colors } = useTheme();
+  const resp = useResponsiveCtx();
   if (status === 'completed')
-    return <View style={[styles.stageDot, { backgroundColor: colors.success }]}><Ionicons name="checkmark" size={14} color="#FFFFFF" /></View>;
+    return <View style={[styles.stageDot, { backgroundColor: colors.success }, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14) }]}><Ionicons name="checkmark" size={resp.scale(14)} color="#FFFFFF" /></View>;
   if (status === 'in-progress')
-    return <View style={[styles.stageDot, { backgroundColor: NigeriaColors.green, boxShadow: '0 0 8px rgba(0,135,81,0.6)', elevation: 6 }]}><Text style={styles.stageDotNum}>{index + 1}</Text></View>;
-  return <View style={[styles.stageDot, { backgroundColor: colors.border }]}><Text style={[styles.stageDotNum, { color: colors.textLight }]}>{index + 1}</Text></View>;
+    return <View style={[styles.stageDot, { backgroundColor: NigeriaColors.green, boxShadow: '0 0 8px rgba(0,135,81,0.6)', elevation: 6 }, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14) }]}><Text style={[styles.stageDotNum, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{index + 1}</Text></View>;
+  return <View style={[styles.stageDot, { backgroundColor: colors.border }, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14) }]}><Text style={[styles.stageDotNum, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{index + 1}</Text></View>;
 }
 
 export default function CareerRoadmapScreen() {
   const { colors, isDark } = useTheme();
   const { user } = useAuth();
   const { stats, startStudyTimer, stopStudyTimer } = useStats();
+  const resp = useResponsiveCtx();
   const [roadmap, setRoadmap] = useState<CareerMilestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,10 +116,10 @@ export default function CareerRoadmapScreen() {
     return (
       <Reanimated.View entering={FadeInDown.delay(index * 100).springify().damping(16)}>
         <View style={styles.milestoneRow}>
-          <View style={styles.milestoneTrack}>
+          <View style={[styles.milestoneTrack, { width: resp.scale(32), marginRight: resp.scale(Spacing.sm) }]}>
             <StageIcon status={item.status} index={index} />
             {!isLast && (
-              <View style={[styles.trackLine, { backgroundColor: isDone ? colors.success : colors.border }]} />
+              <View style={[styles.trackLine, { backgroundColor: isDone ? colors.success : colors.border }, { width: 2, marginVertical: resp.scale(4), minHeight: resp.verticalScale(24) }]} />
             )}
           </View>
           <GlowGlass
@@ -122,23 +127,23 @@ export default function CareerRoadmapScreen() {
             blurIntensity={0}
             glowIntensity={isActive ? 'high' : 'low'}
           >
-            <View style={styles.milestoneCard}>
-              <View style={styles.milestoneTop}>
-                <View style={styles.stagePill}>
-                  <Text style={[styles.stagePillText, { color: NigeriaColors.green }]}>{item.stage}</Text>
+            <View style={[styles.milestoneCard, { padding: resp.scale(Spacing.md) }]}>
+              <View style={[styles.milestoneTop, { marginBottom: resp.scale(Spacing.sm) }]}>
+                <View style={[styles.stagePill, { paddingHorizontal: resp.scale(Spacing.sm), paddingVertical: resp.scale(2), borderRadius: resp.scale(BorderRadius.full) }]}>
+                  <Text style={[styles.stagePillText, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{item.stage}</Text>
                 </View>
                 {isActive && (
-                  <View style={[styles.activePill, { backgroundColor: NigeriaColors.green + '15' }]}>
-                    <View style={[styles.activeDot, { backgroundColor: NigeriaColors.green }]} />
-                    <Text style={[styles.activePillText, { color: NigeriaColors.green }]}>In Progress</Text>
+                  <View style={[styles.activePill, { backgroundColor: NigeriaColors.green + '15' }, { paddingHorizontal: resp.scale(Spacing.sm), paddingVertical: resp.scale(2), borderRadius: resp.scale(BorderRadius.full) }]}>
+                    <View style={[styles.activeDot, { backgroundColor: NigeriaColors.green }, { width: resp.scale(6), height: resp.scale(6), borderRadius: resp.scale(3), marginRight: resp.scale(4) }]} />
+                    <Text style={[styles.activePillText, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>In Progress</Text>
                   </View>
                 )}
                 {isDone && (
-                  <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+                  <Ionicons name="checkmark-circle" size={moderateScale(18)} color={colors.success} />
                 )}
               </View>
-              <Text style={[styles.milestoneTitle, { color: colors.text }]}>{item.title}</Text>
-              <Text style={[styles.milestoneDesc, { color: colors.textSecondary }]}>{item.description}</Text>
+              <Text style={[styles.milestoneTitle, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>{item.title}</Text>
+              <Text style={[styles.milestoneDesc, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.sm), lineHeight: resp.verticalScale(18) }]}>{item.description}</Text>
             </View>
           </GlowGlass>
         </View>
@@ -150,10 +155,10 @@ export default function CareerRoadmapScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <View style={styles.loadingWrap}>
-          <View style={[styles.loadingRing, { borderColor: NigeriaColors.green + '30' }]}>
+          <View style={[styles.loadingRing, { borderColor: NigeriaColors.green + '30' }, { width: resp.scale(48), height: resp.scale(48), borderRadius: resp.scale(24), borderWidth: resp.scale(4) }]}>
             <ActivityIndicator size="small" color={NigeriaColors.green} />
           </View>
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Mapping your nursing journey...</Text>
+          <Text style={[styles.loadingText, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.sm), marginTop: resp.scale(Spacing.lg) }]}>Mapping your nursing journey...</Text>
         </View>
       </SafeAreaView>
     );
@@ -163,13 +168,13 @@ export default function CareerRoadmapScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <View style={styles.loadingWrap}>
-          <View style={[styles.errorIconWrap, { backgroundColor: NigeriaColors.green + '12' }]}>
-            <Ionicons name="cloud-offline-outline" size={32} color={NigeriaColors.green} />
+          <View style={[styles.errorIconWrap, { backgroundColor: NigeriaColors.green + '12' }, { width: resp.scale(56), height: resp.scale(56), borderRadius: resp.scale(28) }]}>
+            <Ionicons name="cloud-offline-outline" size={resp.moderateScale(32)} color={NigeriaColors.green} />
           </View>
-          <Text style={[styles.loadingText, { color: colors.textLight }]}>{error}</Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={loadRoadmap}>
-            <Ionicons name="refresh" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-            <Text style={styles.retryText}>Try Again</Text>
+          <Text style={[styles.loadingText, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>{error}</Text>
+          <TouchableOpacity style={[styles.retryBtn, { marginTop: resp.scale(Spacing.lg), paddingHorizontal: resp.scale(Spacing.lg), paddingVertical: resp.scale(Spacing.sm + 2), borderRadius: resp.scale(BorderRadius.full) }]} onPress={loadRoadmap}>
+            <Ionicons name="refresh" size={resp.scale(16)} color="#FFFFFF" style={{ marginRight: resp.scale(6) }} />
+            <Text style={[styles.retryText, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>Try Again</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -179,23 +184,23 @@ export default function CareerRoadmapScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Hero header */}
-      <View style={styles.heroWrap}>
+      <View style={[styles.heroWrap, { paddingHorizontal: resp.scale(Spacing.lg), paddingTop: resp.scale(Spacing.sm), paddingBottom: resp.scale(Spacing.xs) }]}>
         <GlowGlass variant="green" glowIntensity="medium" blurIntensity={0}>
-          <View style={styles.heroInner}>
+          <View style={[styles.heroInner, { padding: resp.scale(Spacing.md) }]}>
             <ProgressSection progress={progress} completedCount={completedCount} totalCount={totalCount} role={user?.role || 'Nursing'} institution={user?.institution || 'Nigeria'} />
           </View>
         </GlowGlass>
 
         {nextMilestone && (
-          <View style={[styles.nextCard, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderColor: isDark ? '#2a2f45' : '#e8ecf4' }]}>
-            <View style={styles.nextDot}>
-              <Ionicons name="flag-outline" size={14} color={NigeriaColors.green} />
+          <View style={[styles.nextCard, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderColor: isDark ? '#2a2f45' : '#e8ecf4' }, { marginTop: resp.scale(Spacing.sm), paddingVertical: resp.scale(Spacing.sm + 2), paddingHorizontal: resp.scale(Spacing.md), borderRadius: resp.scale(BorderRadius.lg) }]}>
+            <View style={[styles.nextDot, { backgroundColor: NigeriaColors.green + '15' }, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14), marginRight: resp.scale(Spacing.sm) }]}>
+              <Ionicons name="flag-outline" size={resp.scale(14)} color={NigeriaColors.green} />
             </View>
             <View style={styles.nextContent}>
-              <Text style={[styles.nextLabel, { color: NigeriaColors.green }]}>{nextLabel}</Text>
-              <Text style={[styles.nextTitle, { color: colors.text }]} numberOfLines={1}>{nextMilestone.title}</Text>
+              <Text style={[styles.nextLabel, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{nextLabel}</Text>
+              <Text style={[styles.nextTitle, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]} numberOfLines={1}>{nextMilestone.title}</Text>
             </View>
-            <Ionicons name="arrow-forward" size={16} color={colors.textLight} />
+            <Ionicons name="arrow-forward" size={resp.scale(16)} color={colors.textLight} />
           </View>
         )}
       </View>
@@ -204,7 +209,7 @@ export default function CareerRoadmapScreen() {
       <FlatList
         data={roadmap}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingHorizontal: resp.scale(Spacing.lg), paddingBottom: resp.verticalScale(Spacing.xxxl + Spacing.xl) }]}
         showsVerticalScrollIndicator={false}
         renderItem={renderMilestone}
       />
@@ -217,61 +222,58 @@ const styles = StyleSheet.create({
 
   /* Loading / Error */
   loadingWrap: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.lg },
-  loadingRing: { width: 48, height: 48, borderRadius: 24, borderWidth: 4, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontFamily: FontFamily.body, fontSize: FontSize.sm, marginTop: Spacing.lg, textAlign: 'center' },
-  errorIconWrap: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center' },
+  loadingRing: { justifyContent: 'center', alignItems: 'center' },
+  loadingText: { fontFamily: FontFamily.body, textAlign: 'center' },
+  errorIconWrap: { justifyContent: 'center', alignItems: 'center' },
   retryBtn: {
-    marginTop: Spacing.lg, flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm + 2,
-    backgroundColor: NigeriaColors.green, borderRadius: BorderRadius.full,
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: NigeriaColors.green,
   },
-  retryText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, color: '#FFFFFF' },
+  retryText: { fontFamily: FontFamily.bodySemiBold, color: '#FFFFFF' },
 
   /* Hero */
-  heroWrap: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: Spacing.xs },
-  heroInner: { padding: Spacing.md },
-  heroTitle: { fontFamily: FontFamily.display, fontSize: FontSize.xxl },
-  heroSub: { fontFamily: FontFamily.body, fontSize: FontSize.sm, marginTop: 2 },
-  heroProgressPct: { fontFamily: FontFamily.displayExtra, fontSize: FontSize.lg },
-  heroProgressLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginLeft: 2 },
-  progressBg: { height: PROGRESS_BAR_HEIGHT, borderRadius: PROGRESS_BAR_HEIGHT / 2, overflow: 'hidden', marginTop: Spacing.md },
+  heroWrap: {},
+  heroInner: {},
+  heroTitle: { fontFamily: FontFamily.display },
+  heroSub: { fontFamily: FontFamily.body, marginTop: 2 },
+  heroProgressPct: { fontFamily: FontFamily.displayExtra },
+  heroProgressLabel: { fontFamily: FontFamily.body, marginLeft: 2 },
+  progressBg: { overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: PROGRESS_BAR_HEIGHT / 2, backgroundColor: NigeriaColors.green },
-  heroStatsRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.sm },
+  heroStatsRow: { flexDirection: 'row', alignItems: 'center' },
   heroStat: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
-  heroStatVal: { fontFamily: FontFamily.displayExtra, fontSize: FontSize.md },
-  heroStatLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs },
-  heroStatDivider: { width: 1, height: 16, marginHorizontal: Spacing.md },
+  heroStatVal: { fontFamily: FontFamily.displayExtra },
+  heroStatLabel: { fontFamily: FontFamily.body },
+  heroStatDivider: {},
 
   /* Next step card */
   nextCard: {
-    flexDirection: 'row', alignItems: 'center', marginTop: Spacing.sm,
-    paddingVertical: Spacing.sm + 2, paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.lg, borderWidth: 1,
+    flexDirection: 'row', alignItems: 'center',
+    borderWidth: 1,
   },
-  nextDot: { width: 28, height: 28, borderRadius: 14, backgroundColor: NigeriaColors.green + '15', justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
+  nextDot: { justifyContent: 'center', alignItems: 'center' },
   nextContent: { flex: 1 },
-  nextLabel: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, textTransform: 'uppercase', letterSpacing: 0.5 },
-  nextTitle: { fontFamily: FontFamily.heading, fontSize: FontSize.sm, marginTop: 1 },
+  nextLabel: { fontFamily: FontFamily.bodySemiBold, textTransform: 'uppercase', letterSpacing: 0.5 },
+  nextTitle: { fontFamily: FontFamily.heading, marginTop: 1 },
 
   /* Milestone timeline */
-  list: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xxxl + Spacing.xl },
+  list: {},
   milestoneRow: { flexDirection: 'row', marginBottom: 0 },
-  milestoneTrack: { alignItems: 'center', width: 32, marginRight: Spacing.sm },
-  stageDot: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-  stageDotNum: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.xs, color: '#FFFFFF' },
-  trackLine: { width: 2, flex: 1, marginVertical: 4, minHeight: 24 },
+  milestoneTrack: { alignItems: 'center' },
+  stageDot: { justifyContent: 'center', alignItems: 'center' },
+  stageDotNum: { fontFamily: FontFamily.bodyBold, color: '#FFFFFF' },
+  trackLine: {},
 
   /* Milestone card */
-  milestoneCard: { padding: Spacing.md },
-  milestoneTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
+  milestoneCard: {},
+  milestoneTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   stagePill: {
-    paddingHorizontal: Spacing.sm, paddingVertical: 2,
-    backgroundColor: NigeriaColors.green + '12', borderRadius: BorderRadius.full,
+    backgroundColor: NigeriaColors.green + '12',
   },
-  stagePillText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, textTransform: 'uppercase', letterSpacing: 1 },
-  activePill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.sm, paddingVertical: 2, borderRadius: BorderRadius.full },
-  activeDot: { width: 6, height: 6, borderRadius: 3, marginRight: 4 },
-  activePillText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs },
-  milestoneTitle: { fontFamily: FontFamily.heading, fontSize: FontSize.md, marginBottom: 2 },
-  milestoneDesc: { fontFamily: FontFamily.body, fontSize: FontSize.sm, lineHeight: 18 },
+  stagePillText: { fontFamily: FontFamily.bodySemiBold, textTransform: 'uppercase', letterSpacing: 1 },
+  activePill: { flexDirection: 'row', alignItems: 'center' },
+  activeDot: {},
+  activePillText: { fontFamily: FontFamily.bodySemiBold },
+  milestoneTitle: { fontFamily: FontFamily.heading, marginBottom: 2 },
+  milestoneDesc: { fontFamily: FontFamily.body },
 });

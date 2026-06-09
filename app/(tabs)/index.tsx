@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback } from 'react';
-import { StyleSheet, View, Text, Dimensions, ScrollView, Pressable, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Pressable, TouchableOpacity, Animated } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,11 +9,11 @@ import { Spacing, FontSize, FontFamily, BorderRadius, Shadow, NigeriaColors } fr
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useStats } from '../../src/context/StatsContext';
+import { useResponsiveCtx } from '../../src/context/ResponsiveContext';
 import AnimatedStat from '../../src/components/AnimatedStat';
 import GlowGlass from '../../src/components/GlowGlass';
 import { useAIInsights } from '../../src/hooks/useAIInsights';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { scale, verticalScale, moderateScale, responsiveFontSize } from '../../src/utils/responsive';
 
 const NURSING_TOOLS = [
   { id: 'dosage-calculator', label: 'Dosage Calculator', icon: 'calculator-outline' as const, color: '#0D9488', desc: 'Weight-based, IV drip, BSA' },
@@ -54,7 +54,7 @@ function InsightsTabs({ tip, news, quote, loading, refresh }: {
           style={[iStyles.tab, activeTab === 0 && iStyles.tabActive]}
           onPress={() => switchTab(0)}
         >
-          <Ionicons name="bulb-outline" size={14} color={activeTab === 0 ? NigeriaColors.green : colors.textLight} />
+          <Ionicons name="bulb-outline" size={moderateScale(14)} color={activeTab === 0 ? NigeriaColors.green : colors.textLight} />
           <Text style={[iStyles.tabLabel, { color: activeTab === 0 ? NigeriaColors.green : colors.textLight }]}>
             Tip of the Day
           </Text>
@@ -63,13 +63,13 @@ function InsightsTabs({ tip, news, quote, loading, refresh }: {
           style={[iStyles.tab, activeTab === 1 && iStyles.tabActive]}
           onPress={() => switchTab(1)}
         >
-          <Ionicons name="globe-outline" size={14} color={activeTab === 1 ? NigeriaColors.green : colors.textLight} />
+          <Ionicons name="globe-outline" size={moderateScale(14)} color={activeTab === 1 ? NigeriaColors.green : colors.textLight} />
           <Text style={[iStyles.tabLabel, { color: activeTab === 1 ? NigeriaColors.green : colors.textLight }]}>
             Global News
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={refresh} style={iStyles.refreshBtn}>
-          <Ionicons name="refresh" size={15} color={colors.textLight} />
+          <Ionicons name="refresh" size={moderateScale(15)} color={colors.textLight} />
         </TouchableOpacity>
       </View>
 
@@ -104,21 +104,21 @@ const iStyles = StyleSheet.create({
     marginBottom: Spacing.md, gap: Spacing.xs,
   },
   tab: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    paddingVertical: 6, paddingHorizontal: 12,
+    flexDirection: 'row', alignItems: 'center', gap: moderateScale(5),
+    paddingVertical: moderateScale(6), paddingHorizontal: moderateScale(12),
     borderRadius: BorderRadius.full,
   },
   tabActive: { backgroundColor: 'rgba(0,135,81,0.1)' },
-  tabLabel: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm },
-  refreshBtn: { marginLeft: 'auto', padding: 4 },
-  skeleton: { fontFamily: FontFamily.body, fontSize: FontSize.sm, fontStyle: 'italic' },
-  tipText: { fontFamily: FontFamily.body, fontSize: FontSize.md, lineHeight: 22 },
-  quoteText: { fontFamily: FontFamily.body, fontSize: FontSize.sm, fontStyle: 'italic', marginTop: Spacing.sm, lineHeight: 18 },
+  tabLabel: { fontFamily: FontFamily.bodyMedium, fontSize: responsiveFontSize(14) },
+  refreshBtn: { marginLeft: 'auto', padding: moderateScale(4) },
+  skeleton: { fontFamily: FontFamily.body, fontSize: responsiveFontSize(14), fontStyle: 'italic' },
+  tipText: { fontFamily: FontFamily.body, fontSize: responsiveFontSize(16), lineHeight: scale(22) },
+  quoteText: { fontFamily: FontFamily.body, fontSize: responsiveFontSize(14), fontStyle: 'italic', marginTop: Spacing.sm, lineHeight: scale(18) },
   newsList: { gap: Spacing.sm },
   newsRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm },
-  regionBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: BorderRadius.full, marginTop: 2 },
-  regionText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs },
-  newsText: { fontFamily: FontFamily.body, fontSize: FontSize.sm, flex: 1, lineHeight: 20 },
+  regionBadge: { paddingHorizontal: moderateScale(8), paddingVertical: moderateScale(2), borderRadius: BorderRadius.full, marginTop: 2 },
+  regionText: { fontFamily: FontFamily.bodySemiBold, fontSize: responsiveFontSize(12) },
+  newsText: { fontFamily: FontFamily.body, fontSize: responsiveFontSize(14), flex: 1, lineHeight: scale(20) },
 });
 
 export default function HomeScreen() {
@@ -127,6 +127,7 @@ export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const { stats, startStudyTimer, stopStudyTimer } = useStats();
   const { tip, news, quote, loading, refresh } = useAIInsights();
+  const { isTablet, width, gridColumns } = useResponsiveCtx();
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -141,6 +142,11 @@ export default function HomeScreen() {
     }, [])
   );
 
+  const cols = gridColumns(4);
+  const paddingH = isTablet ? scale(32) : scale(24);
+  const cardGap = isTablet ? scale(16) : scale(8);
+  const cardWidth = cols > 1 ? (width - paddingH * 2 - cardGap * (cols - 1)) / cols : width - paddingH * 2;
+
   return (
     <View style={[s.container, { backgroundColor: colors.background }]}>
       <ScrollView
@@ -149,7 +155,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <SafeAreaView edges={['top']} style={s.topArea}>
+        <SafeAreaView edges={['top']} style={[s.topArea, { paddingHorizontal: paddingH }]}>
           <View style={s.flagBar}>
             <View style={[s.flagSeg, { backgroundColor: NigeriaColors.green }]} />
             <View style={[s.flagSeg, { backgroundColor: colors.white }]} />
@@ -160,11 +166,11 @@ export default function HomeScreen() {
               <View style={s.greetingLeft}>
                 <View style={s.greetingIconRow}>
                   <View style={[s.greetingIconBg, { backgroundColor: NigeriaColors.green + '18' }]}>
-                    <Ionicons name="sparkles" size={14} color={NigeriaColors.green} />
+                    <Ionicons name="sparkles" size={moderateScale(14)} color={NigeriaColors.green} />
                   </View>
                   <Text style={[s.greetingLabel, { color: NigeriaColors.green }]}>{today}</Text>
                 </View>
-                <Text style={[s.greeting, { color: colors.text }]}>
+                <Text style={[s.greeting, { color: colors.text, fontSize: isTablet ? responsiveFontSize(32) : responsiveFontSize(28) }]}>
                   {greeting}, {firstName}
                 </Text>
                 <Text style={[s.subGreeting, { color: colors.textSecondary }]}>
@@ -182,31 +188,31 @@ export default function HomeScreen() {
           </GlowGlass>
         </SafeAreaView>
 
-        <View style={s.statsRow}>
+        <View style={[s.statsRow, { paddingHorizontal: paddingH, gap: cardGap }]}>
           <AnimatedStat value={stats.studyMinutes} label="Minutes" icon="time-outline" delay={100} />
           <AnimatedStat value={stats.practiceQuestions} label="Questions" icon="help-circle-outline" delay={200} />
           <AnimatedStat value={stats.connections} label="Connections" icon="people-outline" delay={300} />
         </View>
 
-        <Reanimated.View entering={FadeInDown.delay(200).springify()} style={s.insightsWrap}>
+        <Reanimated.View entering={FadeInDown.delay(200).springify()} style={[s.insightsWrap, { paddingHorizontal: paddingH }]}>
           <View style={s.sectionTitleRow}>
-            <Ionicons name="sparkles" size={16} color={NigeriaColors.green} />
+            <Ionicons name="sparkles" size={moderateScale(16)} color={NigeriaColors.green} />
             <Text style={[s.sectionTitle, { color: colors.text }]}>Daily Insights</Text>
           </View>
           <InsightsTabs tip={tip} news={news} quote={quote} loading={loading} refresh={refresh} />
         </Reanimated.View>
 
-        <Reanimated.View entering={FadeInDown.delay(350).springify()} style={s.sectionWrap}>
+        <Reanimated.View entering={FadeInDown.delay(350).springify()} style={[s.sectionWrap, { paddingHorizontal: paddingH }]}>
           <View style={s.sectionTitleRow}>
-            <Ionicons name="grid-outline" size={16} color={NigeriaColors.green} />
+            <Ionicons name="grid-outline" size={moderateScale(16)} color={NigeriaColors.green} />
             <Text style={[s.sectionTitle, { color: colors.text }]}>Nursing Resources</Text>
           </View>
-          <View style={s.resourcesGrid}>
+          <View style={[s.resourcesGrid, { gap: cardGap }]}>
             {NURSING_TOOLS.map((tool, i) => (
               <Reanimated.View
                 key={tool.id}
                 entering={FadeInDown.delay(400 + i * 80).springify()}
-                style={s.resourceCardWrap}
+                style={{ width: cardWidth }}
                 pointerEvents="box-none"
               >
                 <Pressable
@@ -221,7 +227,7 @@ export default function HomeScreen() {
                         end={{ x: 1, y: 1 }}
                         style={s.resourceIcon}
                       >
-                        <Ionicons name={tool.icon} size={22} color={'#FFFFFF'} />
+                        <Ionicons name={tool.icon} size={moderateScale(22)} color={'#FFFFFF'} />
                       </LinearGradient>
                       <Text style={[s.resourceLabel, { color: colors.text }]}>{tool.label}</Text>
                       <Text style={[s.resourceDesc, { color: colors.textSecondary }]}>{tool.desc}</Text>
@@ -240,49 +246,47 @@ export default function HomeScreen() {
 const s = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: Spacing.xxxl + Spacing.xl },
-  topArea: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm },
-  flagBar: { flexDirection: 'row', height: 3, borderRadius: 2, overflow: 'hidden', marginBottom: Spacing.md },
+  scrollContent: { paddingBottom: verticalScale(100) },
+  topArea: { paddingTop: verticalScale(8) },
+  flagBar: { flexDirection: 'row', height: moderateScale(3), borderRadius: 2, overflow: 'hidden', marginBottom: Spacing.md },
   flagSeg: { flex: 1 },
   greetingWrap: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: Spacing.md, paddingVertical: Spacing.md,
   },
   greetingLeft: { flex: 1, marginRight: Spacing.md },
-  greetingIconRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
-  greetingIconBg: { width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center' },
-  greetingLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, letterSpacing: 0.3 },
-  greeting: { fontFamily: FontFamily.display, fontSize: FontSize.xxl, marginTop: 2 },
-  subGreeting: { fontFamily: FontFamily.body, fontSize: FontSize.sm, marginTop: 3 },
+  greetingIconRow: { flexDirection: 'row', alignItems: 'center', gap: moderateScale(6), marginBottom: 4 },
+  greetingIconBg: { width: moderateScale(22), height: moderateScale(22), borderRadius: moderateScale(11), justifyContent: 'center', alignItems: 'center' },
+  greetingLabel: { fontFamily: FontFamily.body, fontSize: responsiveFontSize(12), letterSpacing: 0.3 },
+  greeting: { fontFamily: FontFamily.display, marginTop: 2 },
+  subGreeting: { fontFamily: FontFamily.body, fontSize: responsiveFontSize(14), marginTop: 3 },
   avatarGlow: {
-    width: 48, height: 48, borderRadius: 24,
+    width: moderateScale(48), height: moderateScale(48), borderRadius: moderateScale(24),
     justifyContent: 'center', alignItems: 'center',
     boxShadow: '0 4px 12px rgba(0,135,81,0.4)',
     elevation: 8,
   },
-  avatarText: { fontFamily: FontFamily.bodyBold, color: '#FFFFFF', fontSize: FontSize.md },
+  avatarText: { fontFamily: FontFamily.bodyBold, color: '#FFFFFF', fontSize: responsiveFontSize(16) },
   statsRow: {
-    flexDirection: 'row', paddingHorizontal: Spacing.lg,
-    gap: Spacing.sm, marginTop: Spacing.lg,
+    flexDirection: 'row',
+    marginTop: verticalScale(24),
   },
-  insightsWrap: { paddingHorizontal: Spacing.lg, marginTop: Spacing.lg },
-  sectionWrap: { paddingHorizontal: Spacing.lg, marginTop: Spacing.lg },
+  insightsWrap: { marginTop: verticalScale(24) },
+  sectionWrap: { marginTop: verticalScale(24) },
   sectionTitleRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
+    flexDirection: 'row', alignItems: 'center', gap: moderateScale(6),
     marginBottom: Spacing.sm,
   },
-  sectionTitle: { fontFamily: FontFamily.heading, fontSize: FontSize.lg },
+  sectionTitle: { fontFamily: FontFamily.heading, fontSize: responsiveFontSize(18) },
   resourcesGrid: {
     flexDirection: 'row', flexWrap: 'wrap',
-    gap: Spacing.sm,
   },
-  resourceCardWrap: { width: (SCREEN_WIDTH - Spacing.lg * 2 - Spacing.sm) / 2 },
   resourceCardInner: { padding: Spacing.md },
   resourceIcon: {
-    width: 42, height: 42, borderRadius: 12,
+    width: moderateScale(42), height: moderateScale(42), borderRadius: moderateScale(12),
     justifyContent: 'center', alignItems: 'center',
     marginBottom: Spacing.sm,
   },
-  resourceLabel: { fontFamily: FontFamily.heading, fontSize: FontSize.sm },
-  resourceDesc: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginTop: 2 },
+  resourceLabel: { fontFamily: FontFamily.heading, fontSize: responsiveFontSize(14) },
+  resourceDesc: { fontFamily: FontFamily.body, fontSize: responsiveFontSize(12), marginTop: 2 },
 });

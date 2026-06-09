@@ -12,6 +12,8 @@ import { chatWithGemini } from '../../src/services/gemini';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useStats } from '../../src/context/StatsContext';
 import GlowGlass from '../../src/components/GlowGlass';
+import { useResponsiveCtx } from '../../src/context/ResponsiveContext';
+import { scale, verticalScale, moderateScale, responsiveFontSize } from '../../src/utils/responsive';
 
 type Message = {
   id: string;
@@ -28,10 +30,11 @@ const suggestions = [
 
 function TypingIndicator() {
   const { colors } = useTheme();
+  const resp = useResponsiveCtx();
   return (
     <View style={[indicatorStyles.row, { alignSelf: 'flex-start' }]}>
-      <View style={[indicatorStyles.avatar, { backgroundColor: colors.primary + '15' }]}>
-        <Ionicons name="sparkles" size={12} color={colors.primary} />
+      <View style={[indicatorStyles.avatar, { backgroundColor: colors.primary + '15' }, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14) }]}>
+        <Ionicons name="sparkles" size={resp.scale(12)} color={colors.primary} />
       </View>
       <View style={[indicatorStyles.bubble, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={indicatorStyles.dots}>
@@ -39,7 +42,7 @@ function TypingIndicator() {
             <Animated.View
               key={i}
               entering={FadeInDown.delay(i * 150).springify()}
-              style={[indicatorStyles.dot, { backgroundColor: colors.primary }]}
+              style={[indicatorStyles.dot, { backgroundColor: colors.primary }, { width: resp.scale(8), height: resp.scale(8), borderRadius: resp.scale(4) }]}
             />
           ))}
         </View>
@@ -50,15 +53,16 @@ function TypingIndicator() {
 
 const indicatorStyles = StyleSheet.create({
   row: { flexDirection: 'row', marginBottom: 8, alignItems: 'flex-end' },
-  avatar: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 6, marginBottom: 4 },
+  avatar: { justifyContent: 'center', alignItems: 'center', marginRight: 6, marginBottom: 4 },
   bubble: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: 16, borderWidth: 1 },
   dots: { flexDirection: 'row', gap: 4 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
+  dot: {},
 });
 
 export default function AIAssistantScreen() {
   const { colors, isDark } = useTheme();
   const { incrementQuestions, startStudyTimer, stopStudyTimer } = useStats();
+  const resp = useResponsiveCtx();
 
   useFocusEffect(
     useCallback(() => {
@@ -104,16 +108,18 @@ export default function AIAssistantScreen() {
     incrementQuestions();
   };
 
+  const messageMaxWidth = resp.isTablet ? '70%' : '78%';
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <GlowGlass variant="subtle" blurIntensity={60} glowIntensity="low">
         <View style={styles.headerContent}>
-          <View style={[styles.headerIconWrap, { backgroundColor: NigeriaColors.green + '15' }]}>
-            <Ionicons name="sparkles" size={20} color={NigeriaColors.green} />
+          <View style={[styles.headerIconWrap, { backgroundColor: NigeriaColors.green + '15' }, { width: resp.scale(36), height: resp.scale(36), borderRadius: resp.scale(10) }]}>
+            <Ionicons name="sparkles" size={resp.scale(20)} color={NigeriaColors.green} />
           </View>
           <View>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>AI Assistant</Text>
-            <Text style={[styles.headerSubtitle, { color: NigeriaColors.green }]}>Powered by Google Gemini</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.lg) }]}>AI Assistant</Text>
+            <Text style={[styles.headerSubtitle, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>Powered by Google Gemini</Text>
           </View>
         </View>
       </GlowGlass>
@@ -130,13 +136,14 @@ export default function AIAssistantScreen() {
           renderItem={({ item }) => (
             <View style={[styles.messageRow, item.sender === 'user' && styles.userRow]}>
               {item.sender === 'ai' && (
-                <View style={[styles.aiAvatar, { backgroundColor: colors.primary + '15' }]}>
-                  <Ionicons name="sparkles" size={14} color={NigeriaColors.green} />
+                <View style={[styles.aiAvatar, { backgroundColor: colors.primary + '15' }, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14), marginRight: resp.scale(4), marginBottom: resp.scale(4) }]}>
+                  <Ionicons name="sparkles" size={resp.scale(14)} color={NigeriaColors.green} />
                 </View>
               )}
               <View
                 style={[
                   styles.messageBubble,
+                  { maxWidth: messageMaxWidth, paddingHorizontal: resp.scale(Spacing.md), paddingVertical: resp.scale(Spacing.sm + 2), borderRadius: resp.scale(BorderRadius.lg) },
                   item.sender === 'user' ? [styles.userBubble, { backgroundColor: NigeriaColors.green }] : [styles.aiBubble, { backgroundColor: colors.surface, borderColor: colors.border }],
                 ]}
               >
@@ -144,6 +151,7 @@ export default function AIAssistantScreen() {
                   style={[
                     styles.messageText,
                     { color: item.sender === 'user' ? '#FFFFFF' : colors.text },
+                    { fontSize: resp.responsiveFontSize(FontSize.md), lineHeight: resp.verticalScale(22) },
                   ]}
                 >
                   {item.text}
@@ -151,21 +159,21 @@ export default function AIAssistantScreen() {
               </View>
             </View>
           )}
-          contentContainerStyle={styles.messagesList}
+          contentContainerStyle={[styles.messagesList, { padding: resp.scale(Spacing.md), paddingBottom: resp.verticalScale(Spacing.xxxl + Spacing.xl) }]}
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           ListFooterComponent={loading ? <TypingIndicator /> : null}
           ListHeaderComponent={
             messages.length === 1 ? (
               <GlowGlass variant="subtle" blurIntensity={50} glowIntensity="low">
-                <Text style={[styles.suggestionsTitle, { color: colors.textSecondary }]}>Try asking:</Text>
+                <Text style={[styles.suggestionsTitle, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>Try asking:</Text>
                 {suggestions.map((s, i) => (
                   <TouchableOpacity
                     key={i}
-                    style={[styles.suggestionChip, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                    style={[styles.suggestionChip, { backgroundColor: colors.surface, borderColor: colors.border }, { paddingHorizontal: resp.scale(Spacing.md), paddingVertical: resp.scale(Spacing.sm), borderRadius: resp.scale(BorderRadius.full), marginBottom: resp.scale(Spacing.xs) }]}
                     onPress={() => sendMessage(s)}
                   >
-                    <Ionicons name="chatbubble-ellipses-outline" size={14} color={NigeriaColors.green} style={{ marginRight: 6 }} />
-                    <Text style={[styles.suggestionText, { color: colors.primary }]}>{s}</Text>
+                    <Ionicons name="chatbubble-ellipses-outline" size={resp.scale(14)} color={NigeriaColors.green} style={{ marginRight: resp.scale(6) }} />
+                    <Text style={[styles.suggestionText, { color: colors.primary }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>{s}</Text>
                   </TouchableOpacity>
                 ))}
               </GlowGlass>
@@ -173,10 +181,10 @@ export default function AIAssistantScreen() {
           }
         />
 
-        <GlowGlass variant="subtle" blurIntensity={60} glowIntensity="low" style={{ marginBottom: Spacing.xxxl + Spacing.md }}>
-          <View style={styles.inputContainer}>
+        <GlowGlass variant="subtle" blurIntensity={60} glowIntensity="low" style={{ marginBottom: resp.verticalScale(Spacing.xxxl + Spacing.md) }}>
+          <View style={[styles.inputContainer, { paddingHorizontal: resp.scale(Spacing.md), paddingVertical: resp.scale(Spacing.sm) }]}>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, color: colors.text }]}
+              style={[styles.input, { backgroundColor: colors.surfaceAlt, borderColor: colors.border, color: colors.text }, { borderRadius: resp.scale(BorderRadius.lg), paddingHorizontal: resp.scale(Spacing.md), paddingVertical: resp.scale(Spacing.sm + 2), fontSize: resp.responsiveFontSize(FontSize.md), maxHeight: resp.verticalScale(100) }]}
               value={input}
               onChangeText={setInput}
               placeholder="Ask anything about nursing..."
@@ -187,11 +195,11 @@ export default function AIAssistantScreen() {
               returnKeyType="send"
             />
             <TouchableOpacity
-              style={[styles.sendButton, { backgroundColor: NigeriaColors.green }, !input.trim() && { backgroundColor: colors.textLight }]}
+              style={[styles.sendButton, { backgroundColor: NigeriaColors.green }, !input.trim() && { backgroundColor: colors.textLight }, { width: resp.scale(42), height: resp.scale(42), borderRadius: resp.scale(BorderRadius.full), marginLeft: resp.scale(Spacing.sm) }]}
               onPress={() => sendMessage(input)}
               disabled={!input.trim() || loading}
             >
-              <Ionicons name="send" size={18} color={colors.white} />
+              <Ionicons name="send" size={resp.scale(18)} color={colors.white} />
             </TouchableOpacity>
           </View>
         </GlowGlass>
@@ -205,32 +213,32 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   header: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md, borderBottomWidth: 1, ...Shadow.sm },
   headerContent: { flexDirection: 'row', alignItems: 'center' },
-  headerIconWrap: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
-  headerTitle: { fontFamily: FontFamily.heading, fontSize: FontSize.lg },
-  headerSubtitle: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginTop: 1 },
-  messagesList: { padding: Spacing.md, paddingBottom: Spacing.xxxl + Spacing.xl },
+  headerIconWrap: { justifyContent: 'center', alignItems: 'center', marginRight: Spacing.sm },
+  headerTitle: { fontFamily: FontFamily.heading },
+  headerSubtitle: { fontFamily: FontFamily.body, marginTop: 1 },
+  messagesList: {},
   messageRow: { flexDirection: 'row', marginBottom: Spacing.sm, alignItems: 'flex-end' },
   userRow: { justifyContent: 'flex-end' },
-  aiAvatar: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: Spacing.xs, marginBottom: 4 },
-  messageBubble: { maxWidth: '78%', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm + 2, borderRadius: BorderRadius.lg },
+  aiAvatar: { justifyContent: 'center', alignItems: 'center' },
+  messageBubble: {},
   userBubble: { borderBottomRightRadius: 4 },
   aiBubble: { borderBottomLeftRadius: 4, borderWidth: 1 },
-  messageText: { fontFamily: FontFamily.body, fontSize: FontSize.md, lineHeight: 22 },
+  messageText: { fontFamily: FontFamily.body },
   suggestions: { marginBottom: Spacing.md },
-  suggestionsTitle: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, marginBottom: Spacing.sm },
+  suggestionsTitle: { fontFamily: FontFamily.bodyMedium, marginBottom: Spacing.sm },
   suggestionChip: {
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.full, marginBottom: Spacing.xs, borderWidth: 1, ...Shadow.sm,
+    flexDirection: 'row', alignItems: 'center',
+    borderWidth: 1, ...Shadow.sm,
   },
-  suggestionText: { fontFamily: FontFamily.body, fontSize: FontSize.sm, flexShrink: 1 },
+  suggestionText: { fontFamily: FontFamily.body, flexShrink: 1 },
   inputContainer: {
-    flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm, borderTopWidth: 1,
+    flexDirection: 'row', alignItems: 'flex-end',
+    borderTopWidth: 1,
   },
   input: {
-    flex: 1, borderRadius: BorderRadius.lg, paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm + 2, fontFamily: FontFamily.body, fontSize: FontSize.md,
-    maxHeight: 100, borderWidth: 1,
+    flex: 1,
+    fontFamily: FontFamily.body,
+    borderWidth: 1,
   },
-  sendButton: { width: 42, height: 42, borderRadius: BorderRadius.full, alignItems: 'center', justifyContent: 'center', marginLeft: Spacing.sm },
+  sendButton: { alignItems: 'center', justifyContent: 'center' },
 });

@@ -1,11 +1,10 @@
 import { useState, useRef } from 'react';
-import { View, Text, Dimensions, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, NigeriaColors, Spacing, FontSize, FontFamily, BorderRadius, Shadow } from '../constants/theme';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { useResponsiveCtx } from '../context/ResponsiveContext';
 
 const slides = [
   {
@@ -34,6 +33,7 @@ const slides = [
 export default function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const resp = useResponsiveCtx();
 
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
     if (viewableItems[0]) setCurrentIndex(viewableItems[0].index ?? 0);
@@ -58,9 +58,9 @@ export default function OnboardingScreen({ onComplete }: { onComplete: () => voi
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         renderItem={({ item }) => (
-          <View style={styles.slide}>
-            <LinearGradient colors={item.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.iconWrap}>
-              <Ionicons name={item.icon} size={48} color={Colors.white} />
+          <View style={[styles.slide, { width: resp.width }]}>
+            <LinearGradient colors={item.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.iconWrap, { width: resp.scale(120), height: resp.scale(120), borderRadius: resp.scale(36) }]}>
+              <Ionicons name={item.icon} size={resp.responsiveFontSize(48)} color={Colors.white} />
             </LinearGradient>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.subtitle}>{item.subtitle}</Text>
@@ -98,9 +98,8 @@ export default function OnboardingScreen({ onComplete }: { onComplete: () => voi
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  slide: { width: SCREEN_WIDTH, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.xl },
+  slide: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.xl },
   iconWrap: {
-    width: 120, height: 120, borderRadius: 36,
     justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.xl, ...Shadow.lg,
   },
   title: { fontFamily: FontFamily.display, fontSize: FontSize.xxl, color: Colors.text, textAlign: 'center', marginBottom: Spacing.md },

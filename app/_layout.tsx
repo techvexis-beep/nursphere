@@ -17,6 +17,7 @@ import { NigeriaColors } from '../src/constants/theme';
 import { AuthProvider } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { StatsProvider } from '../src/context/StatsContext';
+import { ResponsiveProvider } from '../src/context/ResponsiveContext';
 import OnboardingScreen from '../src/components/OnboardingScreen';
 
 LogBox.ignoreLogs(['[Reanimated]', '[Worklets]', '"shadow*" style props']);
@@ -70,6 +71,7 @@ export default function RootLayout() {
         ) : showOnboarding ? (
           <OnboardingScreen onComplete={() => setShowOnboarding(false)} />
         ) : (
+          <ResponsiveProvider>
           <AuthProvider>
             <StatsProvider>
               <StatusBar style="light" />
@@ -80,6 +82,7 @@ export default function RootLayout() {
               </Stack>
             </StatsProvider>
           </AuthProvider>
+          </ResponsiveProvider>
         )}
       </ThemeProvider>
     </GestureHandlerRootView>

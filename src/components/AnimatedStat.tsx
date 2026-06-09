@@ -4,6 +4,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { Spacing, FontSize, FontFamily, BorderRadius, Shadow } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
+import { useResponsiveCtx } from '../context/ResponsiveContext';
 
 type Props = {
   value: number;
@@ -15,6 +16,7 @@ type Props = {
 export default function AnimatedStat({ value, label, icon, delay = 0 }: Props) {
   const [displayValue, setDisplayValue] = useState(0);
   const { colors } = useTheme();
+  const resp = useResponsiveCtx();
 
   useEffect(() => {
     setDisplayValue(0);
@@ -40,8 +42,8 @@ export default function AnimatedStat({ value, label, icon, delay = 0 }: Props) {
       entering={FadeInDown.delay(delay).springify()}
       style={[styles.card, { backgroundColor: colors.surface }]}
     >
-      <View style={[styles.iconWrap, { backgroundColor: colors.primary + '12' }]}>
-        <Ionicons name={icon} size={16} color={colors.primary} />
+      <View style={[styles.iconWrap, { backgroundColor: colors.primary + '12', width: resp.scale(30), height: resp.scale(30), borderRadius: resp.scale(15) }]}>
+        <Ionicons name={icon} size={resp.responsiveFontSize(16)} color={colors.primary} />
       </View>
       <Text style={[styles.value, { color: colors.text }]}>{displayValue}</Text>
       <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
@@ -58,9 +60,6 @@ const styles = StyleSheet.create({
     ...Shadow.sm,
   },
   iconWrap: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.xs,

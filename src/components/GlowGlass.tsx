@@ -2,6 +2,7 @@ import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BorderRadius, Shadow, NigeriaColors } from '../constants/theme';
 import { useTheme } from '../context/ThemeContext';
+import { useResponsiveCtx } from '../context/ResponsiveContext';
 
 type GlowVariant = 'default' | 'green' | 'subtle';
 
@@ -25,6 +26,7 @@ export default function GlowGlass({
   blurIntensity: _blurIntensity, noPadding, glowIntensity = 'medium',
 }: Props) {
   const { isDark } = useTheme();
+  const resp = useResponsiveCtx();
 
   const glowShadows: Record<GlowVariant, ViewStyle> = {
     green: {
@@ -75,7 +77,7 @@ export default function GlowGlass({
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      <View style={[styles.content, noPadding && { padding: 0 }]}>
+      <View style={[styles.content, noPadding && { padding: 0 }, !noPadding && { padding: resp.moderateScale(16) }]}>
         {children}
       </View>
     </View>
@@ -90,7 +92,6 @@ const styles = StyleSheet.create({
     ...Shadow.md,
   },
   content: {
-    padding: 16,
     position: 'relative',
     zIndex: 2,
   },

@@ -9,6 +9,8 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { useStats } from '../../src/context/StatsContext';
 import { achievements } from '../../src/data/achievements';
 import { fetchCareerInsight } from '../../src/services/geminiInsights';
+import { useResponsiveCtx } from '../../src/context/ResponsiveContext';
+import { scale, verticalScale, moderateScale, responsiveFontSize } from '../../src/utils/responsive';
 
 type MenuItem = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -21,6 +23,7 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { colors, isDark, toggleDark } = useTheme();
   const { stats, startStudyTimer, stopStudyTimer } = useStats();
+  const resp = useResponsiveCtx();
 
   useFocusEffect(
     useCallback(() => {
@@ -76,7 +79,7 @@ export default function ProfileScreen() {
         label: 'AI Career Insight',
         right: loadingInsight
           ? <ActivityIndicator size="small" color={NigeriaColors.green} />
-          : <Text style={[styles.menuRightText, { color: colors.textSecondary, maxWidth: 180, textAlign: 'right' }]} numberOfLines={2}>{careerInsight}</Text>,
+          : <Text style={[styles.menuRightText, { color: colors.textSecondary, maxWidth: moderateScale(180), textAlign: 'right' }]} numberOfLines={2}>{careerInsight}</Text>,
       },
     ],
     [
@@ -97,7 +100,7 @@ export default function ProfileScreen() {
       {
         icon: 'log-out-outline',
         label: 'Sign Out',
-        right: <Ionicons name="chevron-forward" size={18} color={colors.textLight} />,
+        right: <Ionicons name="chevron-forward" size={moderateScale(18)} color={colors.textLight} />,
         onPress: handleLogout,
       },
     ],
@@ -111,53 +114,53 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.profileTop}>
-          <View style={[styles.ghostWrap, { backgroundColor: isDark ? '#1a2040' : '#e8ecf4' }]}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: verticalScale(Spacing.xxxl + Spacing.xl) }]}>
+        <View style={[styles.profileTop, { paddingTop: resp.scale(Spacing.xl), paddingBottom: resp.scale(Spacing.lg), paddingHorizontal: resp.scale(Spacing.lg) }]}>
+          <View style={[styles.ghostWrap, { backgroundColor: isDark ? '#1a2040' : '#e8ecf4' }, { width: resp.scale(100), height: resp.verticalScale(120), borderRadius: resp.scale(30), marginBottom: resp.scale(Spacing.md) }]}>
             <View style={styles.ghostBody}>
-              <Ionicons name="happy-outline" size={44} color={NigeriaColors.green} style={styles.ghostIcon} />
-              <Text style={[styles.ghostInitials, { color: isDark ? '#b8c4e0' : '#556080' }]}>{displayAvatar}</Text>
+              <Ionicons name="happy-outline" size={resp.scale(44)} color={NigeriaColors.green} style={styles.ghostIcon} />
+              <Text style={[styles.ghostInitials, { color: isDark ? '#b8c4e0' : '#556080' }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>{displayAvatar}</Text>
             </View>
           </View>
-          <Text style={[styles.displayName, { color: colors.text }]}>{displayName}</Text>
-          {displayRole ? <Text style={[styles.displayRole, { color: colors.textSecondary }]}>{displayRole}</Text> : null}
+          <Text style={[styles.displayName, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.xxl) }]}>{displayName}</Text>
+          {displayRole ? <Text style={[styles.displayRole, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>{displayRole}</Text> : null}
           {displayInstitution ? (
-            <Text style={[styles.displayInstitution, { color: colors.textLight }]}>
+            <Text style={[styles.displayInstitution, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>
               {displayInstitution}{displayYear ? ` · ${displayYear}` : ''}
             </Text>
           ) : null}
         </View>
 
-        <View style={[styles.statsRow, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderColor: isDark ? '#2a2f45' : '#e8ecf4' }]}>
+        <View style={[styles.statsRow, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderColor: isDark ? '#2a2f45' : '#e8ecf4' }, { marginHorizontal: resp.scale(Spacing.lg), borderRadius: resp.scale(BorderRadius.lg), padding: resp.scale(Spacing.md), marginBottom: resp.scale(Spacing.md) }]}>
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.text }]}>{stats.studyMinutes}</Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Minutes</Text>
+            <Text style={[styles.statValue, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.xl) }]}>{stats.studyMinutes}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>Minutes</Text>
           </View>
-          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+          <View style={[styles.statDivider, { backgroundColor: colors.border }, { width: 1, height: resp.verticalScale(36) }]} />
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.text }]}>{stats.practiceQuestions}</Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Questions</Text>
+            <Text style={[styles.statValue, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.xl) }]}>{stats.practiceQuestions}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>Questions</Text>
           </View>
-          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+          <View style={[styles.statDivider, { backgroundColor: colors.border }, { width: 1, height: resp.verticalScale(36) }]} />
           <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.text }]}>{stats.connections}</Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Connections</Text>
+            <Text style={[styles.statValue, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.xl) }]}>{stats.connections}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>Connections</Text>
           </View>
         </View>
 
-        <View style={styles.menuSections}>
+        <View style={[styles.menuSections, { paddingHorizontal: resp.scale(Spacing.lg), gap: resp.scale(Spacing.sm) }]}>
           {menuItems.map((section, si) => (
-            <View key={si} style={[styles.menuSection, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderColor: isDark ? '#2a2f45' : '#e8ecf4' }]}>
+            <View key={si} style={[styles.menuSection, { backgroundColor: isDark ? '#151b2e' : '#ffffff', borderColor: isDark ? '#2a2f45' : '#e8ecf4' }, { borderRadius: resp.scale(BorderRadius.lg) }]}>
               {section.map((item, ii) => (
                 <TouchableOpacity
                   key={ii}
-                  style={[styles.menuRow, ii < section.length - 1 && { borderBottomWidth: 1, borderBottomColor: isDark ? '#2a2f45' : '#f0f0f5' }]}
+                  style={[styles.menuRow, ii < section.length - 1 && { borderBottomWidth: 1, borderBottomColor: isDark ? '#2a2f45' : '#f0f0f5' }, { paddingVertical: resp.scale(Spacing.md), paddingHorizontal: resp.scale(Spacing.md) }]}
                   onPress={item.onPress}
                   activeOpacity={item.onPress ? 0.6 : 1}
                 >
                   <View style={styles.menuLeft}>
-                    <Ionicons name={item.icon} size={20} color={NigeriaColors.green} style={styles.menuIcon} />
-                    <Text style={[styles.menuLabel, { color: colors.text }]}>{item.label}</Text>
+                    <Ionicons name={item.icon} size={moderateScale(20)} color={NigeriaColors.green} style={[styles.menuIcon, { marginRight: resp.scale(Spacing.sm) }]} />
+                    <Text style={[styles.menuLabel, { color: colors.text }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>{item.label}</Text>
                   </View>
                   <View style={styles.menuRight}>{item.right}</View>
                 </TouchableOpacity>
@@ -166,7 +169,7 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <Text style={[styles.footer, { color: colors.textLight }]}>Nursphere · Nigerian Nursing Companion</Text>
+        <Text style={[styles.footer, { color: colors.textLight }, { fontSize: resp.responsiveFontSize(FontSize.xs), marginTop: resp.scale(Spacing.xl) }]}>Nursphere · Nigerian Nursing Companion</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -174,49 +177,44 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { paddingBottom: Spacing.xxxl + Spacing.xl },
+  scrollContent: {},
 
-  profileTop: { alignItems: 'center', paddingTop: Spacing.xl, paddingBottom: Spacing.lg, paddingHorizontal: Spacing.lg },
+  profileTop: { alignItems: 'center' },
   ghostWrap: {
-    width: 100, height: 120,
-    borderRadius: 30,
     justifyContent: 'center', alignItems: 'center',
-    marginBottom: Spacing.md,
   },
   ghostBody: { alignItems: 'center', justifyContent: 'center' },
   ghostIcon: { marginBottom: -4 },
-  ghostInitials: { fontFamily: FontFamily.heading, fontSize: FontSize.sm, letterSpacing: 1 },
-  displayName: { fontFamily: FontFamily.display, fontSize: FontSize.xxl },
-  displayRole: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, marginTop: 2 },
-  displayInstitution: { fontFamily: FontFamily.body, fontSize: FontSize.sm, marginTop: 2 },
+  ghostInitials: { fontFamily: FontFamily.heading, letterSpacing: 1 },
+  displayName: { fontFamily: FontFamily.display },
+  displayRole: { fontFamily: FontFamily.bodyMedium, marginTop: 2 },
+  displayInstitution: { fontFamily: FontFamily.body, marginTop: 2 },
 
   statsRow: {
-    flexDirection: 'row', alignItems: 'center', marginHorizontal: Spacing.lg,
-    borderRadius: BorderRadius.lg, padding: Spacing.md, marginBottom: Spacing.md,
+    flexDirection: 'row', alignItems: 'center',
     borderWidth: 1, ...Shadow.sm,
   },
   statItem: { flex: 1, alignItems: 'center' },
-  statValue: { fontFamily: FontFamily.displayExtra, fontSize: FontSize.xl },
-  statLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginTop: 2 },
-  statDivider: { width: 1, height: 36 },
+  statValue: { fontFamily: FontFamily.displayExtra },
+  statLabel: { fontFamily: FontFamily.body, marginTop: 2 },
+  statDivider: {},
 
-  menuSections: { paddingHorizontal: Spacing.lg, gap: Spacing.sm },
+  menuSections: {},
   menuSection: {
-    borderRadius: BorderRadius.lg, overflow: 'hidden',
+    overflow: 'hidden',
     borderWidth: 1, ...Shadow.sm,
   },
   menuRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingVertical: Spacing.md, paddingHorizontal: Spacing.md,
   },
   menuLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  menuIcon: { marginRight: Spacing.sm },
-  menuLabel: { fontFamily: FontFamily.body, fontSize: FontSize.md },
+  menuIcon: {},
+  menuLabel: { fontFamily: FontFamily.body },
   menuRight: { flexDirection: 'row', alignItems: 'center' },
   menuRightText: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm },
-  progressMini: { width: 80 },
+  progressMini: { width: moderateScale(80) },
   miniBarBg: { height: 6, borderRadius: 3, overflow: 'hidden' },
   miniBarFill: { height: '100%', borderRadius: 3 },
 
-  footer: { fontFamily: FontFamily.body, fontSize: FontSize.xs, textAlign: 'center', marginTop: Spacing.xl },
+  footer: { fontFamily: FontFamily.body, textAlign: 'center' },
 });

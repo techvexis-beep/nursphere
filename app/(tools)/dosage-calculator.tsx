@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  StyleSheet, KeyboardAvoidingView, Platform, Dimensions,
+  StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
@@ -16,8 +16,8 @@ import {
 import { useTheme } from '../../src/context/ThemeContext';
 import GlowGlass from '../../src/components/GlowGlass';
 import { useStats } from '../../src/context/StatsContext';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { useResponsiveCtx } from '../../src/context/ResponsiveContext';
+import { scale, verticalScale, moderateScale, responsiveFontSize } from '../../src/utils/responsive';
 
 type CalcMode = 'weight-based' | 'drip-rate' | 'bsa';
 
@@ -35,6 +35,7 @@ export default function DosageCalculatorScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const { incrementQuestions, startStudyTimer, stopStudyTimer } = useStats();
+  const resp = useResponsiveCtx();
 
   const [mode, setMode] = useState<CalcMode>('weight-based');
   const [history, setHistory] = useState<CalcHistory[]>([]);
@@ -163,31 +164,31 @@ export default function DosageCalculatorScreen() {
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFill}
           />
-          <View style={styles.headerContent}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-              <Ionicons name="arrow-back" size={22} color={isDark ? '#fff' : '#1a1a2e'} />
+          <View style={[styles.headerContent, { paddingHorizontal: resp.scale(Spacing.lg), paddingVertical: resp.scale(Spacing.md) }]}>
+            <TouchableOpacity onPress={() => router.back()} style={[styles.headerBtn, { width: resp.scale(36), height: resp.scale(36), borderRadius: resp.scale(10) }]}>
+              <Ionicons name="arrow-back" size={moderateScale(22)} color={isDark ? '#fff' : '#1a1a2e'} />
             </TouchableOpacity>
             <View style={styles.headerCenter}>
-              <View style={styles.headerIconRow}>
+              <View style={[styles.headerIconRow, { gap: resp.scale(Spacing.sm) }]}>
                 <LinearGradient
                   colors={[NigeriaColors.green, '#00A859']}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                  style={styles.headerIconGlow}
+                  style={[styles.headerIconGlow, { width: resp.scale(36), height: resp.scale(36), borderRadius: resp.scale(10) }]}
                 >
-                  <Ionicons name="calculator" size={20} color="#fff" />
+                  <Ionicons name="calculator" size={resp.scale(20)} color="#fff" />
                 </LinearGradient>
                 <View>
-                  <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#1a1a2e' }]}>
+                  <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#1a1a2e' }, { fontSize: resp.responsiveFontSize(FontSize.lg) }]}>
                     Dosage Calculator
                   </Text>
-                  <Text style={[styles.headerSub, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }]}>
+                  <Text style={[styles.headerSub, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>
                     Safe & accurate drug calculations
                   </Text>
                 </View>
               </View>
             </View>
-            <TouchableOpacity onPress={clearAll} style={styles.headerBtn}>
-              <Ionicons name="refresh" size={20} color={isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'} />
+            <TouchableOpacity onPress={clearAll} style={[styles.headerBtn, { width: resp.scale(36), height: resp.scale(36), borderRadius: resp.scale(10) }]}>
+              <Ionicons name="refresh" size={moderateScale(20)} color={isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)'} />
             </TouchableOpacity>
           </View>
         </View>
@@ -195,17 +196,17 @@ export default function DosageCalculatorScreen() {
 
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
-          contentContainerStyle={styles.scroll}
+          contentContainerStyle={[styles.scroll, { padding: resp.scale(Spacing.md), paddingTop: resp.scale(Spacing.sm) }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Mode Selector */}
           <GlowGlass variant="green" blurIntensity={60} glowIntensity="low">
-            <View style={styles.modeSelector}>
-              <Text style={[styles.selectorLabel, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }]}>
+            <View style={[styles.modeSelector, { padding: resp.scale(Spacing.sm) }]}>
+              <Text style={[styles.selectorLabel, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }, { fontSize: resp.responsiveFontSize(FontSize.xs), marginBottom: resp.scale(Spacing.sm) }]}>
                 Calculation Mode
               </Text>
-              <View style={styles.modeRow}>
+              <View style={[styles.modeRow, { gap: resp.scale(Spacing.sm) }]}>
                 {MODES.map((m) => (
                   <TouchableOpacity
                     key={m.value}
@@ -213,6 +214,7 @@ export default function DosageCalculatorScreen() {
                       styles.modeItem,
                       { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' },
                       mode === m.value && styles.modeItemActive,
+                      { borderRadius: resp.scale(BorderRadius.md), padding: resp.scale(Spacing.sm + 2), gap: resp.scale(Spacing.sm) },
                     ]}
                     onPress={() => { setMode(m.value); setResult(null); setShowResult(false); setError(null); }}
                     activeOpacity={0.7}
@@ -221,10 +223,11 @@ export default function DosageCalculatorScreen() {
                       styles.modeIconWrap,
                       { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' },
                       mode === m.value && { backgroundColor: 'rgba(0,135,81,0.2)' },
+                      { width: resp.scale(40), height: resp.scale(40), borderRadius: resp.scale(12) },
                     ]}>
                       <Ionicons
                         name={m.icon}
-                        size={18}
+                        size={resp.scale(18)}
                         color={mode === m.value ? NigeriaColors.green : (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)')}
                       />
                     </View>
@@ -233,16 +236,17 @@ export default function DosageCalculatorScreen() {
                         styles.modeLabel,
                         { color: isDark ? '#fff' : '#1a1a2e' },
                         mode === m.value && { color: NigeriaColors.green },
+                        { fontSize: resp.responsiveFontSize(FontSize.sm) },
                       ]}>
                         {m.label}
                       </Text>
-                      <Text style={[styles.modeDesc, { color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)' }]}>
+                      <Text style={[styles.modeDesc, { color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)' }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>
                         {m.desc}
                       </Text>
                     </View>
                     {mode === m.value && (
                       <View style={styles.modeCheck}>
-                        <Ionicons name="checkmark-circle" size={16} color={NigeriaColors.green} />
+                        <Ionicons name="checkmark-circle" size={resp.scale(16)} color={NigeriaColors.green} />
                       </View>
                     )}
                   </TouchableOpacity>
@@ -253,30 +257,30 @@ export default function DosageCalculatorScreen() {
 
           {/* Input Form */}
           <GlowGlass variant="default" blurIntensity={70} glowIntensity="low">
-            <View style={styles.formSection}>
-              <View style={styles.formHeaderRow}>
-                <View style={styles.formHeaderLeft}>
+            <View style={[styles.formSection, { padding: resp.scale(Spacing.sm) }]}>
+              <View style={[styles.formHeaderRow, { marginBottom: resp.scale(Spacing.sm) }]}>
+                <View style={[styles.formHeaderLeft, { gap: resp.scale(Spacing.sm) }]}>
                   <LinearGradient
                     colors={[NigeriaColors.green, '#00A859']}
                     start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                    style={styles.formHeaderIcon}
+                    style={[styles.formHeaderIcon, { width: resp.scale(24), height: resp.scale(24), borderRadius: resp.scale(8) }]}
                   >
-                    <Ionicons name="pencil" size={14} color="#fff" />
+                    <Ionicons name="pencil" size={resp.scale(14)} color="#fff" />
                   </LinearGradient>
-                  <Text style={[styles.formTitle, { color: isDark ? '#fff' : '#1a1a2e' }]}>
+                  <Text style={[styles.formTitle, { color: isDark ? '#fff' : '#1a1a2e' }, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>
                     Enter Values
                   </Text>
                 </View>
                 <TouchableOpacity
-                  style={[styles.presetBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)' }]}
+                  style={[styles.presetBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)' }, { paddingHorizontal: resp.scale(Spacing.sm), paddingVertical: resp.scale(Spacing.xs), borderRadius: resp.scale(BorderRadius.full) }]}
                   onPress={() => {
                     if (mode === 'weight-based') { setWeight('70'); setDosagePerKg('15'); setFrequency('4'); setConcentration('50'); }
                     else if (mode === 'drip-rate') { setVolume('500'); setTime('8'); setDropFactor('20'); }
                     else { setHeightVal('170'); setWeightBSA('70'); }
                   }}
                 >
-                  <Ionicons name="flash-outline" size={14} color={NigeriaColors.green} />
-                  <Text style={[styles.presetText, { color: NigeriaColors.green }]}>Fill</Text>
+                  <Ionicons name="flash-outline" size={resp.scale(14)} color={NigeriaColors.green} />
+                  <Text style={[styles.presetText, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>Fill</Text>
                 </TouchableOpacity>
               </View>
               {fields.map((f, i) => (
@@ -285,20 +289,20 @@ export default function DosageCalculatorScreen() {
                   entering={FadeInDown.delay(50 * i).duration(300).springify()}
                   layout={Layout.springify()}
                 >
-                  <View style={[styles.fieldRow, { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
-                    <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }]}>
+                  <View style={[styles.fieldRow, { borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }, { marginBottom: resp.scale(Spacing.sm), paddingBottom: resp.scale(Spacing.sm) }]}>
+                    <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }, { fontSize: resp.responsiveFontSize(FontSize.xs), marginBottom: resp.scale(Spacing.xs) }]}>
                       {f.label}
                     </Text>
                     <View style={styles.fieldInputWrap}>
                       <TextInput
-                        style={[styles.fieldInput, { color: isDark ? '#fff' : '#1a1a2e' }]}
+                        style={[styles.fieldInput, { color: isDark ? '#fff' : '#1a1a2e' }, { fontSize: resp.responsiveFontSize(FontSize.md), paddingVertical: resp.scale(Spacing.xs + 2) }]}
                         value={f.val}
                         onChangeText={f.set}
                         placeholder={f.placeholder}
                         placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)'}
                         keyboardType="decimal-pad"
                       />
-                      <Text style={[styles.fieldUnit, { color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)' }]}>
+                      <Text style={[styles.fieldUnit, { color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)' }, { fontSize: resp.responsiveFontSize(FontSize.xs), marginLeft: resp.scale(Spacing.sm) }]}>
                         {f.unit}
                       </Text>
                     </View>
@@ -313,14 +317,14 @@ export default function DosageCalculatorScreen() {
             <LinearGradient
               colors={[NigeriaColors.green, '#006B3F']}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-              style={styles.calcButton}
+              style={[styles.calcButton, { borderRadius: resp.scale(BorderRadius.md), marginBottom: resp.scale(Spacing.md) }]}
             >
-              <View style={styles.calcBtnContent}>
-                <View style={styles.calcBtnIcon}>
-                  <Ionicons name="flash" size={20} color="#fff" />
+              <View style={[styles.calcBtnContent, { paddingVertical: resp.scale(Spacing.md + 2), gap: resp.scale(Spacing.sm) }]}>
+                <View style={[styles.calcBtnIcon, { width: resp.scale(32), height: resp.scale(32), borderRadius: resp.scale(8) }]}>
+                  <Ionicons name="flash" size={resp.scale(20)} color="#fff" />
                 </View>
-                <Text style={styles.calcBtnText}>Calculate Now</Text>
-                <Ionicons name="arrow-forward" size={18} color="rgba(255,255,255,0.7)" />
+                <Text style={[styles.calcBtnText, { fontSize: resp.responsiveFontSize(FontSize.md) }]}>Calculate Now</Text>
+                <Ionicons name="arrow-forward" size={resp.scale(18)} color="rgba(255,255,255,0.7)" />
               </View>
             </LinearGradient>
           </TouchableOpacity>
@@ -329,9 +333,9 @@ export default function DosageCalculatorScreen() {
           {error && (
             <Animated.View entering={FadeInDown.duration(300)}>
               <GlowGlass variant="default" blurIntensity={50} glowIntensity="low" style={{ borderColor: 'rgba(239,68,68,0.3)' }}>
-                <View style={styles.errorRow}>
-                  <Ionicons name="alert-circle" size={18} color="#EF4444" />
-                  <Text style={[styles.errorText, { color: '#EF4444' }]}>{error}</Text>
+                <View style={[styles.errorRow, { gap: resp.scale(Spacing.sm) }]}>
+                  <Ionicons name="alert-circle" size={resp.scale(18)} color="#EF4444" />
+                  <Text style={[styles.errorText, { color: '#EF4444' }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>{error}</Text>
                 </View>
               </GlowGlass>
             </Animated.View>
@@ -340,28 +344,28 @@ export default function DosageCalculatorScreen() {
           {/* Result */}
           {showResult && result && (
             <Animated.View key={animKey} entering={FadeInDown.duration(500).springify()}>
-              <GlowGlass variant="green" blurIntensity={80} glowIntensity="high" style={styles.resultGlassCard}>
-                <View style={styles.resultSection}>
-                  <View style={styles.resultBadgeRow}>
+              <GlowGlass variant="green" blurIntensity={80} glowIntensity="high" style={{ marginBottom: resp.scale(Spacing.md) }}>
+                <View style={[styles.resultSection, { padding: resp.scale(Spacing.sm) }]}>
+                  <View style={[styles.resultBadgeRow, { gap: resp.scale(Spacing.sm), marginBottom: resp.scale(Spacing.sm) }]}>
                     <LinearGradient
                       colors={[NigeriaColors.green, '#00A859']}
                       start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                      style={styles.resultBadge}
+                      style={[styles.resultBadge, { width: resp.scale(28), height: resp.scale(28), borderRadius: resp.scale(14) }]}
                     >
-                      <Ionicons name="checkmark-circle" size={16} color="#fff" />
+                      <Ionicons name="checkmark-circle" size={resp.scale(16)} color="#fff" />
                     </LinearGradient>
-                    <Text style={[styles.resultBadgeLabel, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }]}>
+                    <Text style={[styles.resultBadgeLabel, { color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)' }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>
                       Calculated Result
                     </Text>
                   </View>
-                  <Text style={[styles.resultValue, { color: NigeriaColors.green }]}>
+                  <Text style={[styles.resultValue, { color: NigeriaColors.green }, { fontSize: resp.moderateScale(36), letterSpacing: resp.moderateScale(-0.5), marginBottom: resp.scale(Spacing.sm) }]}>
                     {result}
                   </Text>
-                  <View style={[styles.resultDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }]} />
+                  <View style={[styles.resultDivider, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' }, { height: 1, marginBottom: resp.scale(Spacing.sm) }]} />
                   {resultDetails.map((d, i) => (
-                    <View key={i} style={styles.resultDetailRow}>
-                      <View style={[styles.resultDot, { backgroundColor: NigeriaColors.green + '50' }]} />
-                      <Text style={[styles.resultDetailText, { color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)' }]}>
+                    <View key={i} style={[styles.resultDetailRow, { gap: resp.scale(Spacing.sm), marginBottom: resp.scale(4) }]}>
+                      <View style={[styles.resultDot, { backgroundColor: NigeriaColors.green + '50' }, { width: resp.scale(5), height: resp.scale(5), borderRadius: resp.scale(2.5) }]} />
+                      <Text style={[styles.resultDetailText, { color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)' }, { fontSize: resp.responsiveFontSize(FontSize.sm), lineHeight: resp.verticalScale(20) }]}>
                         {d}
                       </Text>
                     </View>
@@ -374,29 +378,29 @@ export default function DosageCalculatorScreen() {
           {/* History */}
           {history.length > 0 && (
             <GlowGlass variant="subtle" blurIntensity={40} glowIntensity="low">
-              <TouchableOpacity style={[styles.historyHeader, { borderBottomColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]} onPress={() => setShowHistory(!showHistory)}>
-                <View style={styles.historyHeaderLeft}>
-                  <Ionicons name="time-outline" size={16} color={isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)'} />
-                  <Text style={[styles.historyHeaderTitle, { color: isDark ? '#fff' : '#1a1a2e' }]}>History</Text>
-                  <View style={[styles.historyCountBadge, { backgroundColor: NigeriaColors.green + '20' }]}>
-                    <Text style={[styles.historyCountText, { color: NigeriaColors.green }]}>{history.length}</Text>
+              <TouchableOpacity style={[styles.historyHeader, { borderBottomColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }, { paddingVertical: resp.scale(Spacing.sm), paddingHorizontal: resp.scale(Spacing.sm) }]} onPress={() => setShowHistory(!showHistory)}>
+                <View style={[styles.historyHeaderLeft, { gap: resp.scale(Spacing.sm) }]}>
+                  <Ionicons name="time-outline" size={resp.scale(16)} color={isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)'} />
+                  <Text style={[styles.historyHeaderTitle, { color: isDark ? '#fff' : '#1a1a2e' }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>History</Text>
+                  <View style={[styles.historyCountBadge, { backgroundColor: NigeriaColors.green + '20' }, { paddingHorizontal: resp.scale(6), paddingVertical: resp.scale(1), borderRadius: resp.scale(BorderRadius.full) }]}>
+                    <Text style={[styles.historyCountText, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>{history.length}</Text>
                   </View>
                 </View>
-                <Ionicons name={showHistory ? 'chevron-up' : 'chevron-down'} size={16} color={isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)'} />
+                <Ionicons name={showHistory ? 'chevron-up' : 'chevron-down'} size={resp.scale(16)} color={isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)'} />
               </TouchableOpacity>
               {showHistory && (
-                <View style={styles.historyList}>
+                <View style={[styles.historyList, { paddingHorizontal: resp.scale(Spacing.sm) }]}>
                   {history.map((h) => (
-                    <View key={h.id} style={[styles.historyItem, { borderBottomColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)' }]}>
+                    <View key={h.id} style={[styles.historyItem, { borderBottomColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)' }, { paddingVertical: resp.scale(Spacing.sm) }]}>
                       <View style={styles.historyItemInfo}>
-                        <Text style={[styles.historyItemLabel, { color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' }]}>
+                        <Text style={[styles.historyItemLabel, { color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' }, { fontSize: resp.responsiveFontSize(FontSize.xs) }]}>
                           {h.label}
                         </Text>
-                        <Text style={[styles.historyItemTime, { color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }]}>
+                        <Text style={[styles.historyItemTime, { color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }, { fontSize: resp.responsiveFontSize(10) }]}>
                           {h.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </Text>
                       </View>
-                      <Text style={[styles.historyItemResult, { color: NigeriaColors.green }]}>{h.result}</Text>
+                      <Text style={[styles.historyItemResult, { color: NigeriaColors.green }, { fontSize: resp.responsiveFontSize(FontSize.sm) }]}>{h.result}</Text>
                     </View>
                   ))}
                 </View>
@@ -404,7 +408,7 @@ export default function DosageCalculatorScreen() {
             </GlowGlass>
           )}
 
-          <View style={{ height: 100 }} />
+          <View style={{ height: verticalScale(100) }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -416,99 +420,91 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   safeTop: { zIndex: 10 },
   headerGlass: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
     overflow: 'hidden',
     borderBottomWidth: 0,
     boxShadow: '0 4px 16px rgba(0,135,81,0.1)',
     elevation: 6,
   },
   headerContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 2 },
-  headerBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  headerBtn: { justifyContent: 'center', alignItems: 'center' },
   headerCenter: { flex: 1, alignItems: 'center' },
-  headerIconRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  headerIconRow: { flexDirection: 'row', alignItems: 'center' },
   headerIconGlow: {
-    width: 36, height: 36, borderRadius: 10,
     justifyContent: 'center', alignItems: 'center',
     boxShadow: '0 4px 12px rgba(0,135,81,0.4)',
     elevation: 8,
   },
-  headerTitle: { fontFamily: FontFamily.display, fontSize: FontSize.lg },
-  headerSub: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginTop: 1 },
-  scroll: { padding: Spacing.md, paddingTop: Spacing.sm },
+  headerTitle: { fontFamily: FontFamily.display },
+  headerSub: { fontFamily: FontFamily.body, marginTop: 1 },
+  scroll: {},
 
   /* Mode Selector */
-  modeSelector: { padding: Spacing.sm },
-  selectorLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: Spacing.sm, marginLeft: 2 },
-  modeRow: { gap: Spacing.sm },
+  modeSelector: {},
+  selectorLabel: { fontFamily: FontFamily.body, textTransform: 'uppercase', letterSpacing: 1.5, marginLeft: 2 },
+  modeRow: {},
   modeItem: {
     flexDirection: 'row', alignItems: 'center',
-    borderRadius: BorderRadius.md, padding: Spacing.sm + 2,
-    gap: Spacing.sm,
   },
   modeItemActive: {
     backgroundColor: 'rgba(0,135,81,0.08)',
   },
   modeIconWrap: {
-    width: 40, height: 40, borderRadius: 12,
     justifyContent: 'center', alignItems: 'center',
   },
   modeTextWrap: { flex: 1 },
-  modeLabel: { fontFamily: FontFamily.heading, fontSize: FontSize.sm },
-  modeDesc: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginTop: 1 },
+  modeLabel: { fontFamily: FontFamily.heading },
+  modeDesc: { fontFamily: FontFamily.body, marginTop: 1 },
   modeCheck: { width: 24, alignItems: 'center' },
 
   /* Form */
-  formSection: { padding: Spacing.sm },
-  formHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
-  formHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  formHeaderIcon: { width: 24, height: 24, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-  formTitle: { fontFamily: FontFamily.heading, fontSize: FontSize.md },
-  presetBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xs, borderRadius: BorderRadius.full },
-  presetText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs },
-  fieldRow: { marginBottom: Spacing.sm, borderBottomWidth: 1, paddingBottom: Spacing.sm },
-  fieldLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, marginBottom: Spacing.xs },
+  formSection: {},
+  formHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  formHeaderLeft: { flexDirection: 'row', alignItems: 'center' },
+  formHeaderIcon: { justifyContent: 'center', alignItems: 'center' },
+  formTitle: { fontFamily: FontFamily.heading },
+  presetBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  presetText: { fontFamily: FontFamily.bodySemiBold },
+  fieldRow: { borderBottomWidth: 1 },
+  fieldLabel: { fontFamily: FontFamily.body },
   fieldInputWrap: { flexDirection: 'row', alignItems: 'center' },
-  fieldInput: { flex: 1, fontFamily: FontFamily.body, fontSize: FontSize.md, paddingVertical: Spacing.xs + 2 },
-  fieldUnit: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.xs, marginLeft: Spacing.sm },
+  fieldInput: { flex: 1, fontFamily: FontFamily.body },
+  fieldUnit: { fontFamily: FontFamily.bodyMedium },
 
   /* Calculate */
   calcButton: {
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.md,
     boxShadow: '0 6px 16px rgba(0,135,81,0.4)',
     elevation: 10,
   },
-  calcBtnContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.md + 2, gap: Spacing.sm },
-  calcBtnIcon: { width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
-  calcBtnText: { fontFamily: FontFamily.display, fontSize: FontSize.md, color: '#FFFFFF' },
+  calcBtnContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  calcBtnIcon: { backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
+  calcBtnText: { fontFamily: FontFamily.display, color: '#FFFFFF' },
 
   /* Error */
-  errorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  errorText: { fontFamily: FontFamily.body, fontSize: FontSize.sm, flex: 1 },
+  errorRow: { flexDirection: 'row', alignItems: 'center' },
+  errorText: { fontFamily: FontFamily.body, flex: 1 },
 
   /* Result */
-  resultGlassCard: { marginBottom: Spacing.md },
-  resultSection: { padding: Spacing.sm },
-  resultBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
-  resultBadge: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-  resultBadgeLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, textTransform: 'uppercase', letterSpacing: 1 },
-  resultValue: { fontFamily: FontFamily.displayExtra, fontSize: 36, letterSpacing: -0.5, marginBottom: Spacing.sm },
-  resultDivider: { height: 1, marginBottom: Spacing.sm },
-  resultDetailRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: 4 },
-  resultDot: { width: 5, height: 5, borderRadius: 2.5 },
-  resultDetailText: { fontFamily: FontFamily.body, fontSize: FontSize.sm, lineHeight: 20 },
+  resultGlassCard: {},
+  resultSection: {},
+  resultBadgeRow: { flexDirection: 'row', alignItems: 'center' },
+  resultBadge: { justifyContent: 'center', alignItems: 'center' },
+  resultBadgeLabel: { fontFamily: FontFamily.body, textTransform: 'uppercase', letterSpacing: 1 },
+  resultValue: { fontFamily: FontFamily.displayExtra },
+  resultDivider: {},
+  resultDetailRow: { flexDirection: 'row', alignItems: 'center' },
+  resultDot: {},
+  resultDetailText: { fontFamily: FontFamily.body },
 
   /* History */
-  historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.sm, borderBottomWidth: 1, paddingHorizontal: Spacing.sm },
-  historyHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  historyHeaderTitle: { fontFamily: FontFamily.heading, fontSize: FontSize.sm },
-  historyCountBadge: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: BorderRadius.full },
-  historyCountText: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.xs },
-  historyList: { paddingHorizontal: Spacing.sm },
-  historyItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth },
+  historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1 },
+  historyHeaderLeft: { flexDirection: 'row', alignItems: 'center' },
+  historyHeaderTitle: { fontFamily: FontFamily.heading },
+  historyCountBadge: {},
+  historyCountText: { fontFamily: FontFamily.bodyBold },
+  historyList: {},
+  historyItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth },
   historyItemInfo: { gap: 1 },
-  historyItemLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs },
-  historyItemTime: { fontFamily: FontFamily.body, fontSize: 10 },
-  historyItemResult: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm },
+  historyItemLabel: { fontFamily: FontFamily.body },
+  historyItemTime: { fontFamily: FontFamily.body },
+  historyItemResult: { fontFamily: FontFamily.bodyBold },
 });
