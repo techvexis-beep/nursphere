@@ -3,8 +3,9 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
+import * as Updates from 'expo-updates';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { View, LogBox, StyleSheet } from 'react-native';
+import { View, LogBox, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Poppins_400Regular,
@@ -27,6 +28,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [updateReady, setUpdateReady] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -49,6 +51,36 @@ export default function RootLayout() {
     }
     load();
   }, []);
+
+  useEffect(() => {
+    async function checkUpdates() {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          setUpdateReady(true);
+        }
+      } catch (e) {
+        console.log('Update check skipped (first launch)');
+      }
+    }
+    if (fontsLoaded) {
+      checkUpdates();
+    }
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    if (updateReady) {
+      Alert.alert(
+        'Update Available',
+        'A new update has been downloaded. Restart to apply?',
+        [
+          { text: 'Later', style: 'cancel' },
+          { text: 'Restart', onPress: () => Updates.reloadAsync() },
+        ]
+      );
+    }
+  }, [updateReady]);
 
   useEffect(() => {
     if (fontsLoaded) {
