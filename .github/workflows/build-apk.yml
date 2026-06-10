@@ -28,26 +28,29 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Prebuild (generate native Android project)
-        run: npx expo prebuild --platform android --no-install
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
-      - name: Patch Android build config for JS bundle embedding
+      - name: Prebuild
+        run: npx expo prebuild --platform android --clean
+
+      - name: Bundle JS for Android
         run: |
-          # Ensure bundleInRelease=true so JS bundle is embedded in APK
-          sed -i 's/^android {/project.ext.react = [\n    entryFile: "index.js",\n    bundleInDebug: true,\n    bundleInRelease: true,\n    enableHermes: true\n]\n\nandroid {/' android/app/build.gradle
+          npx react-native bundle --platform android --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
 
-      - name: Build APK (debug)
+      - name: Build debug APK
         run: |
           cd android
           ./gradlew assembleDebug --no-daemon
 
-      - name: Verify APK contains JS bundle
+      - name: Verify APK has JS bundle
         run: |
-          APK=$(ls android/app/build/outputs/apk/debug/*.apk 2>/dev/null | head -1)
-          if [ -z "$APK" ]; then echo "No APK found!"; exit 1; fi
-          echo "APK found: $APK ($(du -h $APK | cut -f1))"
-          # Check if bundle is inside (unzip and look for bundle)
-          unzip -l $APK | grep -E "\.(bundle|hbc)" && echo "JS bundle embedded!" || echo "WARNING: No JS bundle found in APK!"
+          APK=$(ls android/app/build/outputs/apk/debug/*.apk | head -1)
+          echo "APK: $APK ($(du -h $APK | cut -f1))"
+          unzip -l $APK | grep -E "\.(bundle|hbc)" && echo "JS BUNDLE EMBEDDED!" || echo "WARNING: No bundle!"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
