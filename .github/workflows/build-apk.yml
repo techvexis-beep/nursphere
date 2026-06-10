@@ -36,13 +36,22 @@ jobs:
           mkdir -p android/app
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
-      - name: Bundle JS for Android (Hermes)
+      - name: Export and copy JS bundle for Android
         run: |
+          npx expo export --platform android --output-dir dist-android
           mkdir -p android/app/src/main/assets
-          npx react-native bundle --platform android --dev false \
-            --entry-file index.js \
-            --bundle-output android/app/src/main/assets/index.android.bundle \
-            --assets-dest android/app/src/main/res
+          if [ -f dist-android/android-index.bundle ]; then
+            cp dist-android/android-index.bundle android/app/src/main/assets/index.android.bundle
+            echo "Copied android-index.bundle"
+          elif [ -f dist-android/android-index.hbc ]; then
+            cp dist-android/android-index.hbc android/app/src/main/assets/index.android.hbc
+            echo "Copied android-index.hbc"
+          elif [ -d dist-android/_expo ]; then
+            find dist-android/_expo -type f \( -name "*.bundle" -o -name "*.hbc" \) -exec cp {} android/app/src/main/assets/ \;
+            echo "Copied from _expo"
+          else
+            echo "Dist contents:" && ls -laR dist-android/
+          fi
 
       - name: Build debug APK
         run: |
