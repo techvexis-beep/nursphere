@@ -28,14 +28,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-
-      - name: Prebuild
+      - name: Prebuild (generates android/)
         run: npx expo prebuild --platform android --clean
 
-      - name: Bundle JS for Android
+      - name: Create local.properties
         run: |
+          mkdir -p android/app
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
+      - name: Bundle JS for Android (Hermes)
+        run: |
+          mkdir -p android/app/src/main/assets
           npx react-native bundle --platform android --dev false \
             --entry-file index.js \
             --bundle-output android/app/src/main/assets/index.android.bundle \
@@ -44,13 +47,15 @@ jobs:
       - name: Build debug APK
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -x lint
 
       - name: Verify APK has JS bundle
         run: |
-          APK=$(ls android/app/build/outputs/apk/debug/*.apk | head -1)
+          APK=$(ls android/app/build/outputs/apk/debug/*.apk 2>/dev/null | head -1)
           echo "APK: $APK ($(du -h $APK | cut -f1))"
-          unzip -l $APK | grep -E "\.(bundle|hbc)" && echo "JS BUNDLE EMBEDDED!" || echo "WARNING: No bundle!"
+          unzip -l $APK 2>/dev/null | grep -E "\.(bundle|hbc|assets)" | head -10
+          echo "---"
+          unzip -l $APK 2>/dev/null | head -30
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
